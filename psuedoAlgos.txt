@@ -1,0 +1,14 @@
+Fill Space with Irregular Regions (with set number of regions):
+Have some sort of grid to represent the possible space (rectangular to make things easier)
+For each region to make, randomly place a point on the grid
+Now, for each point, claim a random number of adjacent points
+Have a small chance to stop claiming if beyond certain percentage size
+To keep regions from stretching out too much, have increased chance to select a point which is lower in distance to the center.
+
+Maybe useful answer: https://webcache.googleusercontent.com/search?q=cache:f8JpkRcHPxwJ:https://www.reddit.com/r/gamedev/comments/497u0y/filling_area_with_irregular_shapes/&cd=7&hl=en&ct=clnk&gl=us
+
+
+Ranked Random Algo (randomly select, but with a slight bias for or against some options):
+Answer on this post looks promising: https://stackoverflow.com/questions/5872153/random-selection-weighted-by-rank
+
+

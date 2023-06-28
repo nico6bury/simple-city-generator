@@ -1,0 +1,22 @@
+Introduction:
+People are very common in fiction, and because most people live in cities, cities are also common in fiction. Naturally, there are many cases in which the ability to generate a model of a city is useful. However, creating a model of a large city is time consuming, so having the ability to procedurally generate a city would be quite useful. The goal of this project is to create a program which will randomly generate a city separated out into various districts for use as a setting in a table top roleplaying game.
+
+Background & Related Work:
+The idea of a program or plugin to procedurally generate a city-scape is nothing new. In fact, there are several unity plugins available which do this, such as this one: (https://assetstore.unity.com/packages/tools/level-design/mad-city-procedural-city-generator-224913). There are also guides online which teach you at least in part how to do such procedural generation which much better visual appeal than this project attempts, such as this video: (https://www.youtube.com/watch?v=zBDrH3lg4YY). However, the tools available do not cover a few of the main goals of this project.
+
+Because this project is intended to be used for a medieval fantasy setting in a tabletop roleplaying game, the asthetic of a moderrn city is unsuitable. Of the tools readily available for generating cities, the vast majority if not all focus on modern looking cities. This project, instead, will focus on cities and buildings with more of a fantasy esthetic. In addition, these tools generally just generate something that looks like a city, likely with roads connecting buildings, but that's it; little attention seems to be given to the purpose of various buildings, whether it makes sense for certain buildings to be nearby, what purpose each individual building might serve, or for separating the city out into various districts, such as residential districts, business districts, etc.
+
+Methodology:
+This project will attempt to use Unity and C# to generate cities based on separation into various districts and the purpose of each building. Most individual buildings will not look particularly distinct from each other, but there will be several different models in order to differentiate things at least a little bit. The city itself will be rendered in 3D, providing a visual depiction of the generated city, and there will also be 2D output which just shows separation of districts and building purpose, for use as a map.
+
+Evaluation Criteria:
+The goals of this project are somewhat two-fold. Firstly, the generation should correctly place determine different districts and place buildings in them, such that the city looks like one thing, but it also has distinct districts of some kind. Secondly, the rendering and generation should be relatively performant. Obviously the generation wouldn't be horribly useful if it took so long that it was faster to do things manually. A decent success would be to have the generation take several minutes at most for a decently sized city.
+
+Milestones: Rough Calendar (Later, Results)
+1. Create a list of different city districts and create function to procedurally split up a given area into a given number of districts.
+2. Create a few simple building models for each district.
+3. Create a function which procedurally populates the correct buildings into each district.
+4. Generate roads in between buildings, such that every building has a path to any other building.
+5. Create a function which takes this final generation and turns it into a 2D map of the city.
+6. Stretch Goal: Randomly generate number of residents and name of each resident for each building, plus owner of each building.
+
