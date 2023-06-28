@@ -1,0 +1,45 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'cis_536_city_generator'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=cis_536_city_generator",
+					"--package=cis_536_city_generator"
+				],
+				"filter": {
+					"name": "cis_536_city_generator",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'cis_536_city_generator'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=cis_536_city_generator",
+					"--package=cis_536_city_generator"
+				],
+				"filter": {
+					"name": "cis_536_city_generator",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}
