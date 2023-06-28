@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "FinalProject"
+name = "cis_536_city_generator"
 version = "0.1.0"
