@@ -94,12 +94,12 @@ fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:
     // figure out the sum of distances
     let mut sum_of_weight = 0;
     for coord in coords {
-        sum_of_weight += grouping.dist_from_center(coord) as i32;
+        sum_of_weight += grouping.dist_from_center(coord).ceil() as i32;
     }//end summing up distances from center
     // do the generation ???
     let mut rnd_num = rng.gen_range(0..sum_of_weight);
     for coord in coords {
-        let this_weight = grouping.dist_from_center(coord) as i32;
+        let this_weight = grouping.dist_from_center(coord).ceil() as i32;
         if rnd_num < this_weight {
             return coord;
         }//end if we have a winner

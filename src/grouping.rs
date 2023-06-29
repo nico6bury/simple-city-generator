@@ -159,10 +159,10 @@ impl Grouping {
 		// pull out first location as a variable for easy reference
 		let first = self.locations.first().unwrap();
 		// do a little pythag theorem
-		let x_diff = i32::abs((first.row as i32 - coord.row as i32) as i32);
-		let y_diff = i32::abs((first.col as i32 - coord.col as i32) as i32);
-		let x_diff_squared = x_diff ^ 2;
-		let y_diff_squared = y_diff ^ 2;
+		let x_diff = f32::abs((first.row as f32 - coord.row as f32) as f32);
+		let y_diff = f32::abs((first.col as f32 - coord.col as f32) as f32);
+		let x_diff_squared = x_diff * x_diff;
+		let y_diff_squared = y_diff * y_diff;
 		let x_y_squared_sum = x_diff_squared + y_diff_squared;
 		let distance = f32::sqrt(x_y_squared_sum as f32);
 		return distance;
