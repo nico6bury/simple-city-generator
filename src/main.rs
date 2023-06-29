@@ -40,10 +40,10 @@ fn main() {
         all_enclosed = num_enclosed.eq(&groupings.len());
     }//end looping while some groupings are still able to expand
 
-    // show additions to grid
-    print_grid(&city_grid, "Advanced Groupings");
     // print out the groupings
     print_groupings(&groupings, "Current Groupings");
+    // show additions to grid
+    print_grid(&city_grid, "Advanced Groupings");
     
 }//end main function
 
