@@ -7,11 +7,11 @@ pub struct Coord {
 	/// # row
 	/// 
 	/// The row index
-	row: usize,
+	pub row: usize,
 	/// # col
 	/// 
 	/// The column index
-	col: usize,
+	pub col: usize,
 }//end struct Coord
 
 #[allow(dead_code)]
