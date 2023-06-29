@@ -3,6 +3,7 @@ use fltk::app::App;
 use fltk::app::Receiver;
 use fltk::app::Sender;
 use fltk::button::Button;
+use fltk::dialog;
 use fltk::enums::Align;
 use fltk::enums::FrameType;
 use fltk::enums::Shortcut;
@@ -252,10 +253,21 @@ impl GUI {
 						println!("Set Color");
 					},
 					MenuChoice::AddDistrict => {
-						println!("Add District");
+						let new_dist_name = self.get_new_district_name();
+						if new_dist_name.is_some() {
+							let new_district = Grouping::new(new_dist_name.unwrap());
+							println!("Adding district {}", new_district.name);
+							self.districts.push(new_district);
+						}//end if we got a name for a new district
 					},
 					MenuChoice::RemoveDistrict => {
-						println!("Remove District");
+						// figure out what to remove
+						let district_index_to_remove = self.choose_district();
+						// remove the specified district
+						if district_index_to_remove.is_some() {
+							let removed = self.districts.remove(district_index_to_remove.unwrap());
+							println!("Removed district {}", removed.name);
+						}//end if we can remove one
 					},
 					MenuChoice::GenerateDistricts => {
 						println!("Generate Districts");
@@ -266,6 +278,59 @@ impl GUI {
 		}//end application loop
 		Result::Ok(())
 	}//end show(&mut self)
+
+	/// # get_new_district_name(&self)
+	/// 
+	/// Opens a dialgue box and displays it to the user, prompting them to give a new district name.
+	fn get_new_district_name(&self) -> Option<String> {
+		let dialog = "Enter the name for a new district. It cannot be empty.";
+
+		loop {
+			let dialog_result = dialog::input(0, 0, dialog, "");
+			if dialog_result.is_some() {
+				let result = dialog_result.unwrap();
+				if !result.eq("") && result.eq_ignore_ascii_case("empty") {
+					dialog::message(0, 0, "District name cannot be empty :-(. Try again.");
+				}//end if user had empty name
+				else { return Some(result); }
+			}//end if we got something
+			else {return None;}
+		}//end looping until we get something valid
+	}//end get_new_district_name(&self)
+
+	/// # choose_district(&self)
+	/// 
+	/// opens dialog box prompting user to choose a district from the internal list
+	/// 
+	/// ## Return
+	/// returns the index of self.districts that was selected.
+	/// If the user cancelled the dialogue, then None will be returned.
+	fn choose_district(&self) -> Option<usize> {
+		let mut choose_district_dialog = "Enter the name of a district in the following list, case sensitive.".to_string();
+		for district in &self.districts {
+			choose_district_dialog = format!("{}\n{}", choose_district_dialog,district.name);
+		}//end adding all the district names
+		let choose_district_default:&str;
+		if self.districts.len() > 0 {
+			choose_district_default = &self.districts.first().unwrap().name;
+		}//end if there is at least one option
+		else {return None;}
+
+		// loop to get dialog from the user
+		loop {
+			let result = dialog::input(0, 0, &choose_district_dialog, choose_district_default);
+
+			if result.is_some() {
+				let temp_result = result.clone().unwrap();
+				for i in 0..self.districts.len() {
+					if self.districts.get(i).unwrap().name.eq_ignore_ascii_case(&temp_result) {
+						return Some(i);
+					}//end if we found a match
+				}//end checking each district for a match
+			}//end if we got something to validate
+			else {return None;}
+		}//end looping until we get a result
+	}//end choose_district(self)
 }//end impl for gui
 
 /// # FlexGrid
