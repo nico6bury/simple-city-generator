@@ -1,9 +1,29 @@
+use fltk::app;
+use fltk::button;
+use fltk::enums::FrameType;
+use fltk::enums::Shortcut;
+use fltk::group;
+use fltk::menu;
+use fltk::menu::SysMenuBar;
+use fltk::prelude::GroupExt;
+use fltk::prelude::MenuExt;
+use fltk::prelude::WidgetExt;
+use fltk::window;
 use grid::Grid;
+use gui::GUI;
 use rand::Rng;
 mod grouping;
 use grouping::Coord;
 use grouping::Grouping;
 use rand::rngs::ThreadRng;
+mod gui;
+
+#[derive(Clone)]
+enum MenuChoice {
+	Choice1,
+	Choice2,
+	Resize
+}//end enum MenuChoice
 
 fn main() {
     // create random number generator for whole program
@@ -25,26 +45,35 @@ fn main() {
     for group in groups {
         groupings.push(Grouping::new(group.to_string()));
     }//end adding each group to grouping
-
+    
     // add group starts in random spots
     prime_grid_with_groups(&mut city_grid, &mut groupings, &mut rng);
     // // show additions to grid
     // print_grid(&city_grid, "Primed Grids");
     // // print out the groupings
     // print_groupings(&groupings, "Current Groupings");
-
+    
     // advance groups until enclosed
     let mut all_enclosed = false;
     while !all_enclosed {
         let num_enclosed = advance_group_expansion(&mut city_grid, &mut groupings, &mut rng);
         all_enclosed = num_enclosed.eq(&groupings.len());
     }//end looping while some groupings are still able to expand
-
+    
     // // print out the groupings
     // print_groupings(&groupings, "Current Groupings");
     // show additions to grid
     print_grid(&city_grid, "Advanced Groupings");
     
+    // set up gui
+    let mut gui = GUI::default();
+    gui.initialize_top_menu();
+    gui.initialize_grid(city_grid);
+    // show the gui
+    let result = gui.show();
+    if result.is_err() {
+        println!("error: {}", result.err().unwrap().to_string());
+    }//end if we got an error trying to run our app
 }//end main function
 
 /// # advance_group_expansion(grid, groups)
