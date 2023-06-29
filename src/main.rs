@@ -86,6 +86,9 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
 /// Uses adapted algorithm from http://stackoverflow.com/questions/1761626/weighted-random-numbers/1761646#1761646
 /// 
 /// This function can handle coords having only one element, but don't call it with coords being empty.
+/// 
+/// ## Previous Issue: Potential Panic
+/// The function works by summing up the dist_from_center of each coord. If for some reason, this sum is 0, then the function will panic, saying something about rng not working because something something range bounds. Basically it doesn't like being called with a range of "0..0". This *shouldn't* happen anymore, but if panics like that start cropping up, then take a look at this function or the dist_from_center function in grouping.rs.
 fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:&'a Grouping) -> &'a Coord  {
     // edge case for only one coord
     if coords.len() == 1 {
