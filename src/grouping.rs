@@ -81,4 +81,74 @@ impl Grouping {
 		}//end adding location info to string
 		return result;
 	}//end to_string(&self)
+
+	/// # get_adjacent_coords(&self, max_row, max_col)
+	/// 
+	/// This function generates a list of coordinates that are adjacent to this grouping. The maximum row and column index are required in parameters. 
+	/// This function will automatically exclude coordinates that are already apart of this grouping or that would be out of bounds.
+	pub fn get_adjacent_coords(&self, max_row: &usize, max_col: &usize) -> Vec<Coord> {
+		let mut adjacents = Vec::new();
+		for location in &self.locations {
+			// handy references to make the code more concise
+			let row = location.row;
+			let col = location.col;
+			// top left
+			if row > 0 && col > 0 {
+				let top_left = Coord::new(row - 1, col - 1);
+				if !self.locations.contains(&top_left) && !adjacents.contains(&top_left) {
+					adjacents.push(top_left);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// top
+			if row > 0 {
+				let top = Coord::new(row,col);
+				if !self.locations.contains(&top) && !adjacents.contains(&top) {
+					adjacents.push(top);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// top right
+			if row > 0 && col < *max_col {
+				let top_right = Coord::new(row + 1,col - 1);
+				if !self.locations.contains(&top_right) && !adjacents.contains(&top_right) {
+					adjacents.push(top_right);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// mid left
+			if col > 0 {
+				let mid_left = Coord::new(row - 1, col);
+				if !self.locations.contains(&mid_left) && !adjacents.contains(&mid_left) {
+					adjacents.push(mid_left);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// mid right
+			if col < *max_col {
+				let mid_right = Coord::new(row + 1, col);
+				if !self.locations.contains(&mid_right) && !adjacents.contains(&mid_right) {
+					adjacents.push(mid_right);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// bottom left
+			if row < *max_row && col > 0 {
+				let bot_left = Coord::new(row - 1, col + 1);
+				if !self.locations.contains(&bot_left) && !adjacents.contains(&bot_left) {
+					adjacents.push(bot_left);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// bottom
+			if row < *max_row {
+				let bot = Coord::new(row, col + 1);
+				if !self.locations.contains(&bot) && !adjacents.contains(&bot) {
+					adjacents.push(bot);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+			// bottom right
+			if row < *max_row && col < *max_col {
+				let bot_right = Coord::new(row + 1, col + 1);
+				if !self.locations.contains(&bot_right) && !adjacents.contains(&bot_right) {
+					adjacents.push(bot_right);
+				}//end if we don't already have this adjacency
+			}//end if this coordinate is in bounds
+		}//end looping over locations
+		return adjacents;
+	}//end get_adjacent_coords()
 }//end impl for Grouping
