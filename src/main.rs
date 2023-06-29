@@ -1,4 +1,4 @@
-use grid::{Grid};
+use grid::Grid;
 use rand::Rng;
 mod grouping;
 use grouping::Coord;
