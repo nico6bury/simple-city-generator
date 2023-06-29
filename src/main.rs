@@ -40,8 +40,8 @@ fn main() {
         all_enclosed = num_enclosed.eq(&groupings.len());
     }//end looping while some groupings are still able to expand
 
-    // print out the groupings
-    print_groupings(&groupings, "Current Groupings");
+    // // print out the groupings
+    // print_groupings(&groupings, "Current Groupings");
     // show additions to grid
     print_grid(&city_grid, "Advanced Groupings");
     
@@ -140,6 +140,7 @@ fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng
 /// # print_grid()
 /// 
 /// This function prints the specified grid to the console for debugging purposes.
+#[allow(dead_code)]
 fn print_grid(grid:&Grid<String>, title:&str) {
     println!("{}", title);
     for row in grid.iter_rows() {
@@ -158,6 +159,7 @@ fn print_grid(grid:&Grid<String>, title:&str) {
 /// # print_groupings(groupings, title)
 /// 
 /// This function prints the specified list of groupings to the console for debugging purposes.
+#[allow(dead_code)]
 fn print_groupings(groupings:&Vec<Grouping>, title: &str) {
     println!("{}", title);
     for group in groupings {
