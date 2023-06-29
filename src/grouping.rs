@@ -101,42 +101,42 @@ impl Grouping {
 			}//end if this coordinate is in bounds
 			// top
 			if row > 0 {
-				let top = Coord::new(row,col);
+				let top = Coord::new(row - 1,col);
 				if !self.locations.contains(&top) && !adjacents.contains(&top) {
 					adjacents.push(top);
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// top right
 			if row > 0 && col < max_col {
-				let top_right = Coord::new(row + 1,col - 1);
+				let top_right = Coord::new(row - 1,col + 1);
 				if !self.locations.contains(&top_right) && !adjacents.contains(&top_right) {
 					adjacents.push(top_right);
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// mid left
 			if col > 0 {
-				let mid_left = Coord::new(row - 1, col);
+				let mid_left = Coord::new(row, col - 1);
 				if !self.locations.contains(&mid_left) && !adjacents.contains(&mid_left) {
 					adjacents.push(mid_left);
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// mid right
 			if col < max_col {
-				let mid_right = Coord::new(row + 1, col);
+				let mid_right = Coord::new(row, col + 1);
 				if !self.locations.contains(&mid_right) && !adjacents.contains(&mid_right) {
 					adjacents.push(mid_right);
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// bottom left
 			if row < max_row && col > 0 {
-				let bot_left = Coord::new(row - 1, col + 1);
+				let bot_left = Coord::new(row + 1, col - 1);
 				if !self.locations.contains(&bot_left) && !adjacents.contains(&bot_left) {
 					adjacents.push(bot_left);
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// bottom
 			if row < max_row {
-				let bot = Coord::new(row, col + 1);
+				let bot = Coord::new(row + 1, col);
 				if !self.locations.contains(&bot) && !adjacents.contains(&bot) {
 					adjacents.push(bot);
 				}//end if we don't already have this adjacency
