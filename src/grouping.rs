@@ -151,4 +151,20 @@ impl Grouping {
 		}//end looping over locations
 		return adjacents;
 	}//end get_adjacent_coords()
+
+	/// # dist_from_center(&self, coord)
+	/// 
+	/// Returns the distance as a float from the first location added to this grouping.
+	pub fn dist_from_center(&self, coord: &Coord) -> f32 {
+		// pull out first location as a variable for easy reference
+		let first = self.locations.first().unwrap();
+		// do a little pythag theorem
+		let x_diff = i32::abs((first.row as i32 - coord.row as i32) as i32);
+		let y_diff = i32::abs((first.col as i32 - coord.col as i32) as i32);
+		let x_diff_squared = x_diff ^ 2;
+		let y_diff_squared = y_diff ^ 2;
+		let x_y_squared_sum = x_diff_squared + y_diff_squared;
+		let distance = f32::sqrt(x_y_squared_sum as f32);
+		return distance;
+	}//end dist_from_center(&self, coord)
 }//end impl for Grouping

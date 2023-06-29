@@ -70,8 +70,7 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
         // don't try to advance if there's no valid open coords
         if open_coords.len() == 0 { num_enclosed += 1; continue;}
         // pick one of the open_coords
-        // TODO: add better spot-picking bias to normalize group shapes
-        let coord_to_use = open_coords.get(rng.gen_range(0..open_coords.len())).unwrap();
+        let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group);
         // update group name in grid
         let grid_spot = grid.get_mut(coord_to_use.row, coord_to_use.col).unwrap();
         *grid_spot = group.name.clone();
@@ -80,6 +79,36 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
     }//end looping over each group to advance
     return num_enclosed;
 }//end advance_group_expansion(grid, groups)
+
+/// # weighted_coord_rng
+/// 
+/// Does some weird number manipulation to prefer lower distances in random coord picking.
+/// Uses adapted algorithm from http://stackoverflow.com/questions/1761626/weighted-random-numbers/1761646#1761646
+/// 
+/// This function can handle coords having only one element, but don't call it with coords being empty.
+fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:&'a Grouping) -> &'a Coord  {
+    // edge case for only one coord
+    if coords.len() == 1 {
+        return coords.first().unwrap();
+    }//end if we just have one choice
+    // figure out the sum of distances
+    let mut sum_of_weight = 0;
+    for coord in coords {
+        sum_of_weight += grouping.dist_from_center(coord) as i32;
+    }//end summing up distances from center
+    // do the generation ???
+    let mut rnd_num = rng.gen_range(0..sum_of_weight);
+    for coord in coords {
+        let this_weight = grouping.dist_from_center(coord) as i32;
+        if rnd_num < this_weight {
+            return coord;
+        }//end if we have a winner
+        rnd_num -= this_weight;
+    }//end looping over choice coords
+
+    // should never make it here, but use unweighted generation if weighted doesn't work for some reason
+    return coords.get(rng.gen_range(0..coords.len())).unwrap();
+}//end weighted_coord_rng
 
 /// # prime_grid_with_groups()
 /// 
