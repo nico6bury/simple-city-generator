@@ -10,10 +10,12 @@ use fltk::group;
 use fltk::group::Flex;
 use fltk::group::Group;
 use fltk::group::Tabs;
+use fltk::input::IntInput;
 use fltk::menu;
 use fltk::menu::SysMenuBar;
 use fltk::prelude::FltkError;
 use fltk::prelude::GroupExt;
+use fltk::prelude::InputExt;
 use fltk::prelude::MenuExt;
 use fltk::prelude::WidgetBase;
 use fltk::prelude::WidgetExt;
@@ -26,7 +28,11 @@ use crate::grouping::Grouping;
 pub enum MenuChoice {
 	Choice1,
 	Choice2,
-	Resize
+	Resize,
+	SetColor,
+	AddDistrict,
+	RemoveDistrict,
+	GenerateDistricts,
 }//end enum MenuChoice
 
 pub struct GUI {
@@ -162,10 +168,14 @@ impl GUI {
 		for row_index in 0..ext_grid.rows() as i32 {
 			let mut temp_vec: Vec<Button> = Vec::new();
 			for col_index in 0..ext_grid.cols() as i32 {
+				let mut shrunk = ext_grid.get(row_index as usize, col_index as usize).unwrap().to_owned();
+				if shrunk.len() > 9 {
+					shrunk = shrunk[0..9].to_string();
+				}//end if we need to shrink the name
 				// make the button, positioned correctly
 				let new_button = Button::default()
 					.with_size(button_width, button_height)
-					.with_label(ext_grid.get(row_index as usize, col_index as usize).unwrap());
+					.with_label(&shrunk);
 				// add the button to the list
 				temp_vec.push(new_button);
 			}//end converting each string into a button
@@ -185,7 +195,49 @@ impl GUI {
 	/// 
 	/// 
 	pub fn initialize_settings(&mut self) {
-		
+		// int inputs for grid rows and columns
+		let mut grid_rows_input = IntInput::default()
+			.with_size(50, 20)
+			.with_pos(100, 50)
+			.with_label("Grid Rows");
+		grid_rows_input.set_value("10");
+		let mut grid_cols_input = IntInput::default()
+			.with_size(50, 20)
+			.right_of(&grid_rows_input, 120)
+			.with_label("Grid Columns");
+		grid_cols_input.set_value("10");
+
+		// buttons for editing districts
+		let mut set_color_button = Button::default()
+			.with_size(130, 30)
+			.with_pos(50, 100)
+			.with_label("Set Color...");
+		set_color_button.emit(self.menu_send_receive.0.clone(), MenuChoice::SetColor);
+		let mut add_district_button = Button::default()
+			.with_size(130, 30)
+			.below_of(&set_color_button, 10)
+			.with_label("Add District...");
+		add_district_button.emit(self.menu_send_receive.0.clone(), MenuChoice::AddDistrict);
+		let mut remove_district_button = Button::default()
+			.with_size(130, 30)
+			.below_of(&add_district_button, 10)
+			.with_label("Remove District...");
+		remove_district_button.emit(self.menu_send_receive.0.clone(), MenuChoice::RemoveDistrict);
+
+		// button for generating districts
+		let mut gen_districts_button = Button::default()
+			.with_size(150, 40)
+			.below_of(&remove_district_button, 50)
+			.with_label("Generate Districts");
+		gen_districts_button.emit(self.menu_send_receive.0.clone(), MenuChoice::GenerateDistricts);
+
+		// add everything to settings tab
+		self.settings_tab.add(&grid_rows_input);
+		self.settings_tab.add(&grid_cols_input);
+		self.settings_tab.add(&set_color_button);
+		self.settings_tab.add(&add_district_button);
+		self.settings_tab.add(&remove_district_button);
+		self.settings_tab.add(&gen_districts_button);
 	}//end initialize_settings(self)
 	/// # show(self)
 	/// 
@@ -193,7 +245,26 @@ impl GUI {
 	pub fn show(&mut self) -> Result<(), FltkError> {
 		self.grid_flex.outer_flex.recalc();
 		self.main_window.show();
-		self.application.run()
+		while self.application.wait() {
+			if let Some(val) = self.menu_send_receive.1.recv() {
+				match val {
+					MenuChoice::SetColor => {
+						println!("Set Color");
+					},
+					MenuChoice::AddDistrict => {
+						println!("Add District");
+					},
+					MenuChoice::RemoveDistrict => {
+						println!("Remove District");
+					},
+					MenuChoice::GenerateDistricts => {
+						println!("Generate Districts");
+					},
+					_ => {println!("Unhandled Message");}
+				}//end matching message values
+			}//end if we received a message from receiver
+		}//end application loop
+		Result::Ok(())
 	}//end show(&mut self)
 }//end impl for gui
 

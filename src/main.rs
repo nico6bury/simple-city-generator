@@ -16,7 +16,8 @@ fn main() {
     // set up gui
     let mut gui = GUI::default();
     gui.initialize_top_menu();
-    
+    gui.initialize_settings();
+
     // add group starts in random spots
     prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
     
