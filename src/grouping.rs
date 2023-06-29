@@ -86,14 +86,14 @@ impl Grouping {
 	/// 
 	/// This function generates a list of coordinates that are adjacent to this grouping. The maximum row and column index are required in parameters. 
 	/// This function will automatically exclude coordinates that are already apart of this grouping or that would be out of bounds.
-	pub fn get_adjacent_coords(&self, max_row: usize, max_col: usize) -> Vec<Coord> {
+	pub fn get_adjacent_coords(&self, max_row: usize, max_col: usize, allow_diagonal: bool) -> Vec<Coord> {
 		let mut adjacents = Vec::new();
 		for location in &self.locations {
 			// handy references to make the code more concise
 			let row = location.row;
 			let col = location.col;
 			// top left
-			if row > 0 && col > 0 {
+			if row > 0 && col > 0 && allow_diagonal {
 				let top_left = Coord::new(row - 1, col - 1);
 				if !self.locations.contains(&top_left) && !adjacents.contains(&top_left) {
 					adjacents.push(top_left);
@@ -107,7 +107,7 @@ impl Grouping {
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// top right
-			if row > 0 && col < max_col {
+			if row > 0 && col < max_col && allow_diagonal {
 				let top_right = Coord::new(row - 1,col + 1);
 				if !self.locations.contains(&top_right) && !adjacents.contains(&top_right) {
 					adjacents.push(top_right);
@@ -128,7 +128,7 @@ impl Grouping {
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// bottom left
-			if row < max_row && col > 0 {
+			if row < max_row && col > 0 && allow_diagonal {
 				let bot_left = Coord::new(row + 1, col - 1);
 				if !self.locations.contains(&bot_left) && !adjacents.contains(&bot_left) {
 					adjacents.push(bot_left);
@@ -142,7 +142,7 @@ impl Grouping {
 				}//end if we don't already have this adjacency
 			}//end if this coordinate is in bounds
 			// bottom right
-			if row < max_row && col < max_col {
+			if row < max_row && col < max_col && allow_diagonal {
 				let bot_right = Coord::new(row + 1, col + 1);
 				if !self.locations.contains(&bot_right) && !adjacents.contains(&bot_right) {
 					adjacents.push(bot_right);
