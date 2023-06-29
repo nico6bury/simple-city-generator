@@ -155,12 +155,10 @@ impl GUI {
 		// make the flex grid
 		self.grid_flex.initialize_flex(ext_grid);
 		self.grid_flex.fill_flex(&self.grid_buttons);
-		// reposition flex grid because it likes to get lost
+		// reposition flex grid because it likes to get lost (also screws up resizing for some ungodly reason)
 		// self.grid_flex.outer_flex.resize(0 - button_width / 2, self.districts_tab.y(), self.grid_flex.outer_flex.width() + button_width / 2, self.grid_flex.outer_flex.height());
 		// actually make the grid show up
 		self.districts_tab.add_resizable(&self.grid_flex.outer_flex);
-		// self.grid_flex.outer_flex.set_pos(0, self.districts_tab.y());
-		// self.grid_flex.outer_flex.set_pos(self.grid_flex.outer_flex.x() - button_width, self.grid_flex.outer_flex.y());
 	}//end initialize_grid
 	/// # show(self)
 	/// 
@@ -218,9 +216,8 @@ impl FlexGrid {
 			// save flex to struct
 			self.inner_flexes.push(inner_flex);
 		}//end adding inner flexes
-		println!("{} inner flexes", self.inner_flexes.len());
-		println!("inner flex x:{}", self.inner_flexes.first().unwrap().x());
-		println!("outer flex x:{}", self.outer_flex.x());
+		// println!("{} inner flexes", self.inner_flexes.len());
+		// println!("inner flex x:{}", self.inner_flexes.first().unwrap().x());
 	}//end initialize_flex(self, grid)
 
 	/// # fill_flex(self, buttons)
