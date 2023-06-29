@@ -20,6 +20,8 @@ use fltk::prelude::WidgetExt;
 use fltk::window::Window;
 use grid::Grid;
 
+use crate::grouping::Grouping;
+
 #[derive(Clone)]
 pub enum MenuChoice {
 	Choice1,
@@ -28,15 +30,26 @@ pub enum MenuChoice {
 }//end enum MenuChoice
 
 pub struct GUI {
+	/// the application which contains everything else
 	pub application:App,
+	/// the main window of the application
 	pub main_window:Window,
+	/// send and recieve things for menu buttons
 	pub menu_send_receive:(Sender<MenuChoice>,Receiver<MenuChoice>),
+	/// the menu bar at the top
 	pub top_menu:SysMenuBar,
+	/// the struct handling the 2d array of buttons for district representation
 	pub grid_buttons:Vec<Vec<Button>>,
+	/// the struct handling the grid of buttons for districts
 	pub grid_flex: FlexGrid,
+	/// group holding the various tabs
 	pub tabs:Tabs,
+	/// group holding the settings for generation
 	pub settings_tab:Group,
+	/// group holding the display of generated districts
 	pub districts_tab:Group,
+	/// the list of groupings that we'll generate districts from, each grouping is a district
+	pub districts:Vec<Grouping>,
 }//end struct gui
 
 fn get_default_win_width() -> i32 {900}
@@ -61,6 +74,7 @@ impl GUI {
 			tabs:Tabs::default(),
 			settings_tab:Group::default(),
 			districts_tab:Group::default(),
+			districts:Vec::new(),
 		};//end struct construction
 		gui.set_default_properties();
 		return gui;
@@ -74,6 +88,13 @@ impl GUI {
 			.with_size(get_default_win_width(), get_default_win_height())
 			.with_label("CIS 536 City Generator");
 		self.main_window.make_resizable(true);
+
+		// set default groupings
+		self.districts.push(Grouping::new("slum".to_string()));
+		self.districts.push(Grouping::new("suburb".to_string()));
+		self.districts.push(Grouping::new("adventuring".to_string()));
+		self.districts.push(Grouping::new("financial".to_string()));
+		self.districts.push(Grouping::new("business".to_string()));
 
 		// top menu settings
 		self.top_menu = self.top_menu.clone()
@@ -160,6 +181,12 @@ impl GUI {
 		// actually make the grid show up
 		self.districts_tab.add_resizable(&self.grid_flex.outer_flex);
 	}//end initialize_grid
+	/// # initialize_setting(self)
+	/// 
+	/// 
+	pub fn initialize_settings(&mut self) {
+		
+	}//end initialize_settings(self)
 	/// # show(self)
 	/// 
 	/// Simply causes the gui to become visible, or returns an error if it can't

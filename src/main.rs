@@ -12,33 +12,21 @@ fn main() {
     let mut rng = rand::thread_rng();
     // create our empty grid
     let mut city_grid: Grid<String> = create_empty_grid(10, 10);
-
-    // pick the groups we'll use
-    let mut groups: Vec<&str> = Vec::new();
-    groups.push("slum");
-    groups.push("suburb");
-    groups.push("adventuring");
-    groups.push("financial");
-    groups.push("business");
-    // create the grouping list
-    let mut groupings: Vec<Grouping> = Vec::new();
-    for group in groups {
-        groupings.push(Grouping::new(group.to_string()));
-    }//end adding each group to grouping
-    
-    // add group starts in random spots
-    prime_grid_with_groups(&mut city_grid, &mut groupings, &mut rng);
-    
-    // advance groups until enclosed
-    let mut all_enclosed = false;
-    while !all_enclosed {
-        let num_enclosed = advance_group_expansion(&mut city_grid, &mut groupings, &mut rng);
-        all_enclosed = num_enclosed.eq(&groupings.len());
-    }//end looping while some groupings are still able to expand
     
     // set up gui
     let mut gui = GUI::default();
     gui.initialize_top_menu();
+    
+    // add group starts in random spots
+    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
+    
+    // advance groups until enclosed
+    let mut all_enclosed = false;
+    while !all_enclosed {
+        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng);
+        all_enclosed = num_enclosed.eq(&gui.districts.len());
+    }//end looping while some groupings are still able to expand
+    
     gui.initialize_grid(city_grid);
     // show the gui
     let result = gui.show();
