@@ -42,8 +42,8 @@ fn main() {
 
     // show additions to grid
     print_grid(&city_grid, "Advanced Groupings");
-    // // print out the groupings
-    // print_groupings(&groupings, "Current Groupings");
+    // print out the groupings
+    print_groupings(&groupings, "Current Groupings");
     
 }//end main function
 
