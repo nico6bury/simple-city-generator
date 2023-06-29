@@ -1,5 +1,8 @@
 use grid::{Grid};
-use rand::{Rng};
+use rand::Rng;
+mod grouping;
+use grouping::Coord;
+use grouping::Grouping;
 
 fn main() {
     // create our empty grid
@@ -15,19 +18,29 @@ fn main() {
     groups.push("adventuring");
     groups.push("financial");
     groups.push("business");
+    // create the grouping list
+    let mut groupings: Vec<Grouping> = Vec::new();
+    for group in groups {
+        groupings.push(Grouping::new(group.to_string()));
+    }//end adding each group to grouping
 
     // add group starts in random spots
-    city_grid = prime_grid_with_groups(city_grid, groups);
+    prime_grid_with_groups(&mut city_grid, &mut groupings);
     // show additions to grid
     println!("Primed Grids:");
     print_grid(&city_grid);
+    // print out the groupings
+    println!("Current Groupings");
+    for group in &groupings {
+        println!("{}", group.to_string());
+    }//end printing out each grouping
     
 }//end main function
 
 /// # prime_grid_with_groups()
 /// 
 /// Adds single instance of each group in random spots in the grid.
-fn prime_grid_with_groups(mut grid:Grid<String>, groups:Vec<&str>) -> Grid<String> {
+fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>){
     // create a random number generator to use
     let mut rng = rand::thread_rng();
     // start looping through groups to actually do stuff
@@ -40,14 +53,14 @@ fn prime_grid_with_groups(mut grid:Grid<String>, groups:Vec<&str>) -> Grid<Strin
             if grid.get(row, col).unwrap().eq("empty") {
                 // actually put the group in
                 let spot = grid.get_mut(row, col).unwrap();
-                *spot = group.to_string();
+                *spot = group.name.clone();
+                // update the grouping
+                group.locations.push(Coord::new(row, col));
                 break;
             }//end if we can continue
             else {continue;}
         }//end while we need to do check to not overwrite other group
     }//end generating something for each group
-
-    return grid;
 }//end prime_grid_with_groups
 
 /// # print_grid()
