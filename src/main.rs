@@ -3,8 +3,11 @@ use rand::Rng;
 mod grouping;
 use grouping::Coord;
 use grouping::Grouping;
+use rand::rngs::ThreadRng;
 
 fn main() {
+    // create random number generator for whole program
+    let mut rng = rand::thread_rng();
     // create our empty grid
     let mut city_grid: Grid<String> = create_empty_grid(10, 10);
     // // show empty grid
@@ -24,7 +27,7 @@ fn main() {
     }//end adding each group to grouping
 
     // add group starts in random spots
-    prime_grid_with_groups(&mut city_grid, &mut groupings);
+    prime_grid_with_groups(&mut city_grid, &mut groupings, &mut rng);
     // // show additions to grid
     // print_grid(&city_grid, "Primed Grids");
     // // print out the groupings
@@ -33,7 +36,7 @@ fn main() {
     // advance groups until enclosed
     let mut all_enclosed = false;
     while !all_enclosed {
-        let num_enclosed = advance_group_expansion(&mut city_grid, &mut groupings);
+        let num_enclosed = advance_group_expansion(&mut city_grid, &mut groupings, &mut rng);
         all_enclosed = num_enclosed.eq(&groupings.len());
     }//end looping while some groupings are still able to expand
 
@@ -50,9 +53,7 @@ fn main() {
 /// 
 /// ## Return
 /// This function returns the number of groups which could not be expanded because they were completely enclosed
-fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>) -> usize {
-    // create a random number generator to use
-    let mut rng = rand::thread_rng();
+fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng) -> usize {
     // counter to keep track of fully enclosed groups
     let mut num_enclosed: usize = 0;
     // start looping through the groups to advance
@@ -83,9 +84,7 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>) ->
 /// # prime_grid_with_groups()
 /// 
 /// Adds single instance of each group in random spots in the grid.
-fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>){
-    // create a random number generator to use
-    let mut rng = rand::thread_rng();
+fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng){
     // start looping through groups to actually do stuff
     for group in groups {
         loop {
