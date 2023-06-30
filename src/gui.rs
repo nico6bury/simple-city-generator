@@ -15,11 +15,14 @@ use fltk::group::Tabs;
 use fltk::input::IntInput;
 use fltk::menu;
 use fltk::menu::SysMenuBar;
+use fltk::prelude::DisplayExt;
 use fltk::prelude::GroupExt;
 use fltk::prelude::InputExt;
 use fltk::prelude::MenuExt;
 use fltk::prelude::WidgetBase;
 use fltk::prelude::WidgetExt;
+use fltk::text::TextBuffer;
+use fltk::text::TextDisplay;
 use fltk::window::Window;
 use grid::Grid;
 
@@ -59,6 +62,8 @@ pub struct GUI<'a> {
 	pub districts_tab:Group,
 	/// the list of groupings that we'll generate districts from, each grouping is a district
 	pub districts:Vec<Grouping>,
+	/// The text buffer for displaying our list of the districts
+	pub districts_list_buffer:TextBuffer,
 }//end struct gui
 
 fn get_default_win_width() -> i32 {900}
@@ -86,6 +91,7 @@ impl GUI<'_> {
 			settings_tab: Group::default(),
 			districts_tab: Group::default(),
 			districts: Vec::new(),
+			districts_list_buffer: TextBuffer::default(),
 		};//end struct construction
 		gui.set_default_properties();
 		return gui;
@@ -236,6 +242,16 @@ impl GUI<'_> {
 			.with_label("Generate Districts");
 		gen_districts_button.emit(self.msg_sender.clone(), MenuChoice::GenerateDistricts);
 
+		// scrollable text display for showing districts
+		let mut dist_list_disp = TextDisplay::default()
+			.with_size(270, 300)
+			.right_of(&set_color_button, 50)
+			.with_label("Districts to Generate");
+		// populate district list buffer to show districts
+		self.update_district_list_buf();
+		// update text display with buffer
+		dist_list_disp.set_buffer(self.districts_list_buffer.clone());
+
 		// add everything to settings tab
 		self.settings_tab.add(&grid_rows_input);
 		self.settings_tab.add(&grid_cols_input);
@@ -243,7 +259,23 @@ impl GUI<'_> {
 		self.settings_tab.add(&add_district_button);
 		self.settings_tab.add(&remove_district_button);
 		self.settings_tab.add(&gen_districts_button);
+		self.settings_tab.add(&dist_list_disp);
 	}//end initialize_settings(self)
+
+	/// # update_district_list_buf
+	/// 
+	/// updates the text buffer to show the list of districts
+	pub fn update_district_list_buf(&mut self) {
+		self.districts_list_buffer.set_text("");
+		for district in &self.districts {
+			let mut shrunk_name = district.name.clone();
+			if shrunk_name.len() > 50 {
+				shrunk_name = shrunk_name[0..50].to_string();
+			}//end if we need to shrink the name
+			self.districts_list_buffer.append(&format!("{},      rgb color: {},{},{}\n", shrunk_name, &district.rgb_color.0, &district.rgb_color.1, &district.rgb_color.2));
+		}//end adding each district to buffer
+	}//end update_district_list_buf(&mut self)
+
 	/// # show(self)
 	/// 
 	/// Simply causes the gui to become visible, or returns an error if it can't

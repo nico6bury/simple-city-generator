@@ -53,6 +53,7 @@ fn main() {
                         if gui_color_result.is_some() {
                             gui.districts.get_mut(dist_index).unwrap().rgb_color = gui_color_result.unwrap();
                             // TODO: Redraw group display color after updating the grouping
+                            gui.update_district_list_buf();
                         }//end if we got a color to use
                     }//end if we got something
                 },
@@ -62,6 +63,7 @@ fn main() {
                         let new_district = Grouping::new(new_dist_name.unwrap());
                         println!("Adding district {}", new_district.name);
                         gui.districts.push(new_district);
+                        gui.update_district_list_buf();
                     }//end if we got a name for a new district
                 },
                 MenuChoice::RemoveDistrict => {
@@ -71,6 +73,7 @@ fn main() {
                     if district_index_to_remove.is_some() {
                         let removed = gui.districts.remove(district_index_to_remove.unwrap());
                         println!("Removed district {}", removed.name);
+                        gui.update_district_list_buf();
                     }//end if we can remove one
                 },
                 MenuChoice::GenerateDistricts => {
