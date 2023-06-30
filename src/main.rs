@@ -19,25 +19,14 @@ fn main() {
     // create application object
     let app = App::default();
     // set app theme
-    let theme = WidgetTheme::new(ThemeType::Dark);
-    theme.apply();
+    let w_theme = WidgetTheme::new(ThemeType::AquaClassic);
+    w_theme.apply();
     
     // set up gui
     let mut gui = GUI::default(&app);
     gui.initialize_top_menu();
     gui.initialize_settings();
-
-    // add group starts in random spots
-    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
     
-    // advance groups until enclosed
-    let mut all_enclosed = false;
-    while !all_enclosed {
-        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng);
-        all_enclosed = num_enclosed.eq(&gui.districts.len());
-    }//end looping while some groupings are still able to expand
-    
-    gui.initialize_grid(city_grid);
     // show the gui
     gui.show();
     while app.wait() {
@@ -77,7 +66,27 @@ fn main() {
                     }//end if we can remove one
                 },
                 MenuChoice::GenerateDistricts => {
-                    println!("Generate Districts");
+                    // figure out grid row and column width to make new grid
+                    let grid_dims = gui.get_districts_dims();
+                    city_grid = create_empty_grid(grid_dims.0, grid_dims.1);
+
+                    // add group starts in random spots
+                    println!("Starting grid priming");
+                    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
+                    println!("Grid is primed.");
+                    
+                    // advance groups until enclosed
+                    let mut all_enclosed = false;
+                    println!("Starting grid generation");
+                    while !all_enclosed {
+                        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng);
+                        println!("{} groups are fully enclosed", &num_enclosed);
+                        all_enclosed = num_enclosed.eq(&gui.districts.len());
+                    }//end looping while some groupings are still able to expand
+                    println!("Finished generating grid");
+
+                    // display the new grid stuff
+                    gui.update_grid(&city_grid);
                 },
                 _ => {println!("Unhandled Message");}
             }//end matching message values

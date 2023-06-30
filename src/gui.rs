@@ -63,6 +63,10 @@ pub struct GUI<'a> {
 	pub districts:Vec<Grouping>,
 	/// The text buffer for displaying our list of the districts
 	pub districts_list_buffer:TextBuffer,
+	/// the input for number of rows of districts to generate
+	districts_rows_input:IntInput,
+	/// The input for number of columns of districts to generate
+	districts_cols_input:IntInput,
 }//end struct gui
 
 fn get_default_win_width() -> i32 {900}
@@ -91,6 +95,8 @@ impl GUI<'_> {
 			districts_tab: Group::default(),
 			districts: Vec::new(),
 			districts_list_buffer: TextBuffer::default(),
+			districts_rows_input: IntInput::default(),
+			districts_cols_input: IntInput::default(),
 		};//end struct construction
 		gui.set_default_properties();
 		return gui;
@@ -166,10 +172,10 @@ impl GUI<'_> {
 			MenuChoice::Resize,
 		);
 	}//end initialize_top_menu
-	/// # initialize grid
+	/// # update_grid(self, ext_grid)
 	/// 
-	/// 
-	pub fn initialize_grid(&mut self, ext_grid:Grid<String>) {
+	/// Updates the grid view, and also initializes
+	pub fn update_grid(&mut self, ext_grid:&Grid<String>) {
 		// create a 2d array of buttons
 		let mut button_grid: Vec<Vec<Button>> = Vec::new();
 		// set size of buttons
@@ -191,6 +197,10 @@ impl GUI<'_> {
 			}//end converting each string into a button
 			button_grid.push(temp_vec);
 		}//end going through each row
+		if self.grid_flex.get_num_buttons() > 0 {
+			self.grid_flex.outer_flex.clear();
+		}//end if we have previous stuff to take care of
+
 		// save our hard-earned button grid in our struct
 		self.grid_buttons = button_grid;
 		// make the flex grid
@@ -199,23 +209,26 @@ impl GUI<'_> {
 		// reposition flex grid because it likes to get lost (also screws up resizing for some ungodly reason)
 		// self.grid_flex.outer_flex.resize(0 - button_width / 2, self.districts_tab.y(), self.grid_flex.outer_flex.width() + button_width / 2, self.grid_flex.outer_flex.height());
 		// actually make the grid show up
-		self.districts_tab.add_resizable(&self.grid_flex.outer_flex);
+		if self.districts_tab.children() < 1 {
+			self.districts_tab.add(&self.grid_flex.outer_flex);
+		}//end to tab if not there already
 	}//end initialize_grid
+
 	/// # initialize_setting(self)
 	/// 
 	/// 
 	pub fn initialize_settings(&mut self) {
 		// int inputs for grid rows and columns
-		let mut grid_rows_input = IntInput::default()
+		self.districts_rows_input = IntInput::default()
 			.with_size(50, 20)
 			.with_pos(100, 50)
 			.with_label("Grid Rows");
-		grid_rows_input.set_value("10");
-		let mut grid_cols_input = IntInput::default()
+		self.districts_rows_input.set_value("10");
+		self.districts_cols_input = IntInput::default()
 			.with_size(50, 20)
-			.right_of(&grid_rows_input, 120)
+			.right_of(&self.districts_rows_input, 120)
 			.with_label("Grid Columns");
-		grid_cols_input.set_value("10");
+		self.districts_cols_input.set_value("10");
 
 		// buttons for editing districts
 		let mut set_color_button = Button::default()
@@ -252,14 +265,34 @@ impl GUI<'_> {
 		dist_list_disp.set_buffer(self.districts_list_buffer.clone());
 
 		// add everything to settings tab
-		self.settings_tab.add(&grid_rows_input);
-		self.settings_tab.add(&grid_cols_input);
+		self.settings_tab.add(&self.districts_rows_input);
+		self.settings_tab.add(&self.districts_cols_input);
 		self.settings_tab.add(&set_color_button);
 		self.settings_tab.add(&add_district_button);
 		self.settings_tab.add(&remove_district_button);
 		self.settings_tab.add(&gen_districts_button);
 		self.settings_tab.add(&dist_list_disp);
 	}//end initialize_settings(self)
+
+	/// # get_districts_dims(&self)
+	/// 
+	/// gets the number of rows and columns for grid dimensions
+	pub fn get_districts_dims(&mut self) -> (usize, usize) {
+		// get the raw values
+		let mut rows_result: i32 = self.districts_rows_input.value().parse().expect("Should have been an int???");
+		let mut cols_result: i32 = self.districts_cols_input.value().parse().expect("Should have been an int???");
+		
+		// do a little input handling
+		rows_result = rows_result.max(self.districts.len() as i32);
+		cols_result = cols_result.max(self.districts.len() as i32);
+
+		// make sure we update our text in case we handled input
+		self.districts_rows_input.set_value(&rows_result.to_string());
+		self.districts_cols_input.set_value(&cols_result.to_string());
+
+		// return dims
+		(rows_result as usize, cols_result as usize)
+	}//end get_districts_dims
 
 	/// # update_district_list_buf
 	/// 
@@ -378,10 +411,23 @@ impl FlexGrid {
 		}//end struct construction
 	}//end new()
 
+	/// # get_num_buttons(&self)
+	/// 
+	/// gets the total number of buttons in both dimension
+	pub fn get_num_buttons(&self) -> i32 {
+		let mut counter = 0;
+		for outer_vec in &self.buttons {
+			for _ in outer_vec {
+				counter += 1;
+			}//end inner loop
+		}//end outer loop
+		counter
+	}//end get_num_buttons(&self)
+
 	/// #initialize_flex(self, grid)]
 	/// 
 	/// Sets up the flex-boxes like a grid
-	pub fn initialize_flex(&mut self, grid:Grid<String>) {
+	pub fn initialize_flex(&mut self, grid:&Grid<String>) {
 		// set outer flex to be have rows of elements
 		self.outer_flex.set_type(group::FlexType::Row);
 		self.outer_flex.set_align(Align::LeftTop);
