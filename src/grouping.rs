@@ -91,8 +91,9 @@ impl Grouping {
 	/// # with_color(self, color)
 	/// 
 	/// sets rgb color without needing a separate assignment
-	pub fn with_color(&mut self, color:(u8,u8,u8)) {
+	pub fn with_color(&mut self, color:(u8,u8,u8)) -> Grouping  {
 		self.rgb_color = color;
+		self.to_owned()
 	}//end with_color(self, color)
 
 	/// # get_adjacent_coords(&self, max_row, max_col)
