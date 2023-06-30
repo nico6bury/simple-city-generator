@@ -221,19 +221,35 @@ fn generate_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
     let cols = nhood.sub_grid.cols();
     
     // add roads to our neighborhood
-    add_roads_to_neighborhood(nhood, rng);
+    let num_colors = add_roads_to_neighborhood(nhood, rng);
 
     // figure out number of color options to use
+    let color_options = gen_nhood_colors(rng, num_colors);
 
     // loop through the whole grid
-    // TODO: contineu
+    for row in 0..rows {
+        for col in 0..cols {
+            // pull out the building we want to edit
+            let this_build = nhood.sub_grid.get_mut(row, col).expect("Index should have been safe.");
+            
+            // make sure we aren't overwriting a road
+            if this_build.build_type.eq(&BuildingType::Road) {continue;}
+
+            // generate new type and color for building
+            let (build_type, color) = gen_build_type_color(rng, &color_options);
+            this_build.build_type = build_type;
+            this_build.rgb_color = color;
+        }//end looping through columns
+    }//end looping through rows
 }//end generate_neighborhood(nhood, rng)
 
 /// # add_roads_to_neighborhood(nhood, rng)
 /// 
 /// This function could be seen as a helper function for generate_neighborhood().
 /// It will generate roads and place them in the nhood parameter.
-fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
+/// 
+/// Returns the recommended number of colors to use
+fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) -> usize{
     // save some handy reference variables for later
     let rows = nhood.sub_grid.rows();
     let cols = nhood.sub_grid.cols();
@@ -244,6 +260,9 @@ fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
     let num_roads_total = rng.gen_range(num_roads_low_bound..num_roads_upp_bound);
     let num_roads_horizontal = rng.gen_range(1.min(num_roads_total / 2)..num_roads_total.min((num_roads_total as f32 * 0.7).ceil() as usize));
     let num_roads_vertical = num_roads_total - num_roads_horizontal;
+
+    // determine number of colors from roads
+    let num_colors = 3.max(num_roads_upp_bound - num_roads_total);
     
     // slap some horizontal roads in there
     let mut roads_hor_idxs = Vec::new();
@@ -263,12 +282,15 @@ fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
         }//end if we haven't already generated this index
     }//end looping while we can fit some more vertical roads int there
 
+    let road_color:(u8,u8,u8) = (55,55,55);
+
     // actually edit nhood with horizontal roads
     for row_idx in roads_hor_idxs {
         for col_idx in 0..cols {
             let this_building = nhood.sub_grid.get_mut(row_idx, col_idx).expect("Those indices seemed pretty valid to me... Should be in bounds and everything.");
-            // set type to road
+            // set type to road and color the roads
             this_building.build_type = BuildingType::Road;
+            this_building.rgb_color = road_color;
         }//end looping over each column on our way horizontal
     }//end looping over each horizontal road index to add
 
@@ -276,11 +298,59 @@ fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
     for col_idx in roads_ver_idxs {
         for row_idx in 0..rows {
             let this_building = nhood.sub_grid.get_mut(row_idx, col_idx).expect("Those indices seemed pretty valid to me... Should be in bounds and everything.");
-            // set type to road
+            // set type to road and color the roads
             this_building.build_type = BuildingType::Road;
+            this_building.rgb_color = road_color;
         }//end looping over reach row on our way vertical
     }//end looping over each vertical road index
+
+    return num_colors;
 }//end add_roads_to_neighborhood(nhood, rng)
+
+/// # get_nhood_colors(rng, num_colors)
+/// 
+/// This function could be seen as a helper function for generate_neighborhood().
+/// It will generate a random list of rgb colors, with the number of colors depending on the input number of roads. Generally, the idea is that if you have a relative surplus of roads, then you want relatively fewer colors, and vice versa.
+/// 
+/// Returns a vector of (u8,u8,u8), representing rgb values.
+fn gen_nhood_colors(rng: & mut ThreadRng, num_colors:usize) -> Vec<(u8, u8, u8)> {
+    // get our vector of colors
+    let mut color_options:Vec<(u8,u8,u8)> = Vec::new();
+
+    let px_num = 42.max(num_colors * 2);
+    let px_interval = 255 / px_num;
+    while color_options.len() < num_colors {
+        // generate an rgb value somewhat randomly
+        let r = (rng.gen_range(1..(px_num - 1)) * px_interval) as u8;
+        let g = (rng.gen_range(1..(px_num - 1)) * px_interval) as u8;
+        let b = (rng.gen_range(1..(px_num - 1)) * px_interval) as u8;
+        let rgb = (r,g,b);
+
+        if !color_options.contains(&rgb) {
+            color_options.push(rgb);
+        }//end if we found a new color value
+    }//end looping while we should still fill our list
+
+    return color_options;
+}//end gen_nhood_colors()
+
+/// # gen_build_type_color(rng, colors)
+/// 
+/// This function could be seen as a helper function for generate_neighborhoods().
+/// It will randomly generate a building type and a color. That's it, just useful to keep generate_neighborhoods a little bit cleaner.
+/// 
+/// returns a tuple containing (BuildingType, rgb color as (u8,u8,u8))
+fn gen_build_type_color(rng:&mut ThreadRng, colors:&Vec<(u8,u8,u8)>) -> (BuildingType, (u8, u8, u8)) {
+    let build_type_index = rng.gen_range(0..10);
+    let build_type = match build_type_index {
+        0 => BuildingType::Road,
+        1..=5 => BuildingType::Residence,
+        6..=8 => BuildingType::Shop,
+        _ => BuildingType::Empty,
+    };
+    let color = colors.get(rng.gen_range(0..colors.len())).expect("Proper indexing").to_owned();
+    return (build_type, color);
+}//end gen_build_type_color(rng, colors)
 
 /// # print_grid()
 /// 
@@ -313,6 +383,8 @@ fn print_groupings(groupings:&Vec<Grouping>, title: &str) {
 }//end print_grouping
 
 /// # print_neighborhood(nhood, title)
+/// 
+/// 
 #[allow(dead_code)]
 fn print_neighborhood(nhood:&mut GroupInstance, title: &str) {
     println!("{}",title);
