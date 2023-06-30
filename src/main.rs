@@ -44,7 +44,17 @@ fn main() {
         if let Some(val) = gui.msg_receiver.recv() {
             match val {
                 MenuChoice::SetColor => {
-                    println!("Set Color");
+                    let dist_index_option = gui.choose_district();
+                    if dist_index_option.is_some() {
+                        let dist_index = dist_index_option.unwrap();
+                        // get a color from user
+                        gui.show_message(&format!("Please select a color for district {}", gui.districts.get(dist_index).unwrap().name));
+                        let gui_color_result = gui.get_color();
+                        if gui_color_result.is_some() {
+                            gui.districts.get_mut(dist_index).unwrap().rgb_color = gui_color_result.unwrap();
+                            // TODO: Redraw group display color after updating the grouping
+                        }//end if we got a color to use
+                    }//end if we got something
                 },
                 MenuChoice::AddDistrict => {
                     let new_dist_name = gui.get_new_district_name();
