@@ -94,10 +94,17 @@ fn main() {
                     // display the new grid stuff
                     gui.update_grid(&city_grid);
 
-                    // TODO: debug this wip
-                    let first_nhood = city_grid.get_mut(0, 0).unwrap();
-                    generate_neighborhood(first_nhood, &mut rng);
-                    print_neighborhood(first_nhood, "title");
+                    // generate all neighborhoods
+                    println!("Starting neighborhood generation");
+                    for row in 0..city_grid.rows() {
+                        for col in 0..city_grid.cols() {
+                            let this_instance = city_grid.get_mut(row, col).expect("valid index");
+                            generate_neighborhood(this_instance, &mut rng);
+                        }//end looping over cols in city grid
+                    }//end looping over rows in city grid
+                    println!("Finished neighborhood generation");
+
+                    // TODO: Make it so that neighborhoods can be displayed
                 },
                 _ => {println!("Unhandled Message");}
             }//end matching message values
