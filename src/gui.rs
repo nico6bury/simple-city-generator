@@ -28,6 +28,7 @@ use grid::Grid;
 
 use crate::grouping::Grouping;
 
+#[allow(dead_code)]
 #[derive(Clone)]
 pub enum MenuChoice {
 	Choice1,
@@ -166,11 +167,11 @@ impl GUI<'_> {
 			MenuChoice::Choice2,
 		);
 		self.top_menu.add_emit(
-			"Resize",
-			Shortcut::Ctrl | 's',
+			"Regen",
+			Shortcut::Ctrl | 'r',
 			menu::MenuFlag::Normal,
 			self.msg_sender.clone(),
-			MenuChoice::Resize,
+			MenuChoice::GenerateDistricts,
 		);
 	}//end initialize_top_menu
 	/// # update_grid(self, ext_grid)
