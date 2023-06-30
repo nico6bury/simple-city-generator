@@ -19,8 +19,8 @@ fn main() {
     // create application object
     let app = App::default();
     // set app theme
-    let w_theme = WidgetTheme::new(ThemeType::AquaClassic);
-    w_theme.apply();
+    // let w_theme = WidgetTheme::new(ThemeType::AquaClassic);
+    // w_theme.apply();
     
     // set up gui
     let mut gui = GUI::default(&app);

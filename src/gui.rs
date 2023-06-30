@@ -201,7 +201,7 @@ impl GUI<'_> {
 					.with_label(&shrunk);
 				// set button color based on grouping
 				let c = this_group.rgb_color;
-				new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
+				// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
 				new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
 				// add the button to the list
 				temp_vec.push(new_button);
