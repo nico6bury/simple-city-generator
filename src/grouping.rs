@@ -47,6 +47,10 @@ pub struct Grouping {
 	/// 
 	/// list of coordinates where this group is located in a grid
 	pub locations: Vec<Coord>,
+	/// # rgb_color
+	/// 
+	/// the color to display for the group, in 3-number rgb values
+	pub rgb_color: (u8,u8,u8),
 }//end struct grouping
 
 #[allow(dead_code)]
@@ -58,6 +62,7 @@ impl Grouping {
 		Grouping {
 			name,
 			locations: Vec::new(),
+			rgb_color: (0,0,0),
 		}//end struct construction
 	}//end new()
 
@@ -68,6 +73,7 @@ impl Grouping {
 		Grouping {
 			name: "default".to_string(),
 			locations: Vec::new(),
+			rgb_color: (0,0,0),
 		}//end struct construction
 	}//end default()
 
