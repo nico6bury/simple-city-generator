@@ -117,6 +117,7 @@ impl GUI<'_> {
 		gui.set_default_properties();
 		return gui;
 	}//end default()
+	
 	/// # set_default_properties
 	/// 
 	/// 
@@ -170,6 +171,7 @@ impl GUI<'_> {
 		self.neighborhood_tab.end();
 		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
+	
 	/// # initialize_top_menu
 	/// 
 	/// 
@@ -197,6 +199,7 @@ impl GUI<'_> {
 			"MenuChoice::GenerateDistricts".to_string(),
 		);
 	}//end initialize_top_menu
+	
 	/// # update_grid(self, ext_grid)
 	/// 
 	/// Updates the grid view, and also initializes
