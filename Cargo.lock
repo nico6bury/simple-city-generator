@@ -25,8 +25,6 @@ name = "cis_536_city_generator"
 version = "0.1.0"
 dependencies = [
  "fltk",
- "fltk-evented",
- "fltk-theme",
  "grid",
  "rand",
 ]
@@ -73,30 +71,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "fltk-evented"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41e089ad3b33b2423bf5edc508118c02835b67720fd53ebc493ca84cd4d94b48"
-dependencies = [
- "fltk",
-]
-
-[[package]]
 name = "fltk-sys"
 version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "285dfe936cfc62507fbe673428da5057d4c06377f0f75e74a59ed561f5d33d18"
 dependencies = [
  "cmake",
-]
-
-[[package]]
-name = "fltk-theme"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e368f9b1216b5bdd37f4a4dacaba61b566b04f823e1105d286cf7a89b0136d54"
-dependencies = [
- "fltk",
 ]
 
 [[package]]

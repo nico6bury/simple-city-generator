@@ -5,7 +5,5 @@ edition = "2021"
 
 [dependencies]
 fltk = "1.4.6"
-fltk-evented = "0.4.1"
-fltk-theme = "0.7.1"
 grid = "0.10.0"
 rand = "0.8.5"
