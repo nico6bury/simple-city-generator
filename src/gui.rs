@@ -114,11 +114,11 @@ impl GUI<'_> {
 		self.main_window.make_resizable(true);
 
 		// set default groupings
-		self.districts.push(Grouping::new("slum".to_string()));
-		self.districts.push(Grouping::new("suburb".to_string()));
-		self.districts.push(Grouping::new("adventuring".to_string()));
-		self.districts.push(Grouping::new("financial".to_string()));
-		self.districts.push(Grouping::new("business".to_string()));
+		self.districts.push(Grouping::new("slum".to_string()).with_color((222,42,195)));
+		self.districts.push(Grouping::new("suburb".to_string()).with_color((114,222,42)));
+		self.districts.push(Grouping::new("adventuring".to_string()).with_color((227,0,0)));
+		self.districts.push(Grouping::new("financial".to_string()).with_color((255,250,105)));
+		self.districts.push(Grouping::new("business".to_string()).with_color((74,132,232)));
 
 		// top menu settings
 		self.top_menu = self.top_menu.clone()
