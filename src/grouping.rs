@@ -88,6 +88,13 @@ impl Grouping {
 		return result;
 	}//end to_string(&self)
 
+	/// # with_color(self, color)
+	/// 
+	/// sets rgb color without needing a separate assignment
+	pub fn with_color(&mut self, color:(u8,u8,u8)) {
+		self.rgb_color = color;
+	}//end with_color(self, color)
+
 	/// # get_adjacent_coords(&self, max_row, max_col)
 	/// 
 	/// This function generates a list of coordinates that are adjacent to this grouping. The maximum row and column index are required in parameters. 
