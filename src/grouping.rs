@@ -1,3 +1,5 @@
+use grid::Grid;
+
 
 /// # Coord
 /// 
@@ -182,3 +184,77 @@ impl Grouping {
 		return distance;
 	}//end dist_from_center(&self, coord)
 }//end impl for Grouping
+
+#[derive(Clone)]
+pub struct GroupInstance {
+	pub group:Option<Grouping>,
+	pub coord:Option<Coord>,
+	pub sub_grid: Grid<Building>,
+}
+
+impl Default for GroupInstance {
+	/// # default()
+	/// 
+	/// Sets the group and coord references as None without really setting up the sub_grid yet.
+	fn default() -> GroupInstance {
+		GroupInstance {
+			group: None,
+			coord: None,
+			sub_grid: Grid::new(1,1),
+		}//end struct construction
+	}//end default(group, coord)
+}//end Default impl for GroupInstance
+
+#[allow(dead_code)]
+impl GroupInstance {
+	/// # initialize_sub_grid(self, rows, cols)
+	/// 
+	/// Sets grid to specified size and filles with default Buildings
+	pub fn initialize_sub_grid(&mut self, rows:usize, cols:usize) {
+		self.sub_grid = Grid::new(rows, cols);
+		self.sub_grid.fill(Building::default());
+	}//end initialize_sub_grid(self, rows, cols)
+
+	/// # new(group, coord, rows, cols)
+	/// 
+	/// Sets references for grouping and coord, while also initializing sub_grid as in initialize_sub_grid() function
+	pub fn new(group:Grouping, coord:Coord, rows:usize, cols:usize) -> GroupInstance {
+		let mut temp_grid = Grid::new(rows, cols);
+		temp_grid.fill(Building::default());
+
+		GroupInstance {
+			group: Some(group),
+			coord: Some(coord),
+			sub_grid: temp_grid,
+		}//end struct constructions
+	}//end new(group, coord, rows, cols)
+}//end GroupInstance
+
+#[allow(dead_code)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum BuildingType {
+	/// building type hasn't been determined yet
+	Empty,
+	/// road, long and narrow, max width 1
+	Road,
+	/// house where people live
+	Residence,
+	/// place where people go to buy things
+	Shop,
+}//end enum BuildingType
+
+impl Default for BuildingType {
+    fn default() -> Self {
+        BuildingType::Empty
+    }//end default()
+}//end enum BuildingType
+
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+pub struct Building {
+	pub build_type: BuildingType,
+	pub rgb_color: (u8, u8, u8)
+}//end struct Building
+
+impl Building {
+	
+}//end impl for Building

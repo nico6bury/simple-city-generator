@@ -26,6 +26,7 @@ use fltk::text::TextDisplay;
 use fltk::window::Window;
 use grid::Grid;
 
+use crate::grouping::GroupInstance;
 use crate::grouping::Grouping;
 
 #[allow(dead_code)]
@@ -177,7 +178,7 @@ impl GUI<'_> {
 	/// # update_grid(self, ext_grid)
 	/// 
 	/// Updates the grid view, and also initializes
-	pub fn update_grid(&mut self, ext_grid:&Grid<Grouping>) {
+	pub fn update_grid(&mut self, ext_grid:&Grid<GroupInstance>) {
 		// clear previous nonsense
 		if self.grid_flex.outer_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
@@ -191,7 +192,11 @@ impl GUI<'_> {
 			let mut temp_vec: Vec<Button> = Vec::new();
 			for row_index in 0..ext_grid.rows() as i32 {
 				let this_group = ext_grid.get(row_index as usize, col_index as usize).unwrap();
-				let mut shrunk = this_group.name.to_owned();
+				let mut shrunk;
+				if this_group.group.is_some() {
+					shrunk = this_group.group.as_ref().unwrap().name.clone();
+				}//end if the instance is categorized
+				else { shrunk = "empty".to_string(); }
 				if shrunk.len() > 9 {
 					shrunk = shrunk[0..9].to_string();
 				}//end if we need to shrink the name
@@ -200,9 +205,11 @@ impl GUI<'_> {
 					.with_size(button_width, button_height)
 					.with_label(&shrunk);
 				// set button color based on grouping
-				let c = this_group.rgb_color;
-				// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
-				new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
+				if this_group.group.is_some() {
+					let c = this_group.group.as_ref().unwrap().rgb_color;
+					// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
+					new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
+				}//end if this grouped instance is actually grouped
 				// add the button to the list
 				temp_vec.push(new_button);
 			}//end converting each string into a button
@@ -441,7 +448,7 @@ impl FlexGrid {
 	/// #initialize_flex(self, grid)]
 	/// 
 	/// Sets up the flex-boxes like a grid
-	pub fn initialize_flex(&mut self, grid:&Grid<Grouping>) {
+	pub fn initialize_flex(&mut self, grid:&Grid<GroupInstance>) {
 		// set outer flex to be have rows of elements
 		self.outer_flex.set_type(group::FlexType::Row);
 		self.outer_flex.set_align(Align::LeftTop);

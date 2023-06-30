@@ -2,6 +2,7 @@ use fltk::app::App;
 use fltk_theme::ThemeType;
 use fltk_theme::WidgetTheme;
 use grid::Grid;
+use grouping::GroupInstance;
 use gui::GUI;
 use gui::MenuChoice;
 use rand::Rng;
@@ -15,7 +16,7 @@ fn main() {
     // create random number generator for whole program
     let mut rng = rand::thread_rng();
     // create our empty grid
-    let mut city_grid: Grid<Grouping>;
+    let mut city_grid: Grid<GroupInstance>;
     // create application object
     let app = App::default();
     // set app theme
@@ -75,14 +76,14 @@ fn main() {
 
                     // add group starts in random spots
                     println!("Starting grid priming");
-                    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
+                    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng, 10, 10);
                     println!("Grid is primed.");
                     
                     // advance groups until enclosed
                     let mut all_enclosed = false;
                     println!("Starting grid generation");
                     while !all_enclosed {
-                        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng);
+                        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, 10, 10);
                         println!("{} groups are fully enclosed", &num_enclosed);
                         all_enclosed = num_enclosed.eq(&gui.districts.len());
                     }//end looping while some groupings are still able to expand
@@ -101,9 +102,14 @@ fn main() {
 /// 
 /// For each group, an adjacent, unclaimed tile will be claimed. If no tiles can be claimed, the group will not expand.
 /// 
+/// ## Parameters
+/// inner_rows and inner_cols refer to the number of rows and columns to initialize the grid in each GroupInstance with
+/// groups is the list of possible groups or categories to choose from
+/// the grid represents which spots have been claimed by which groups
+/// 
 /// ## Return
 /// This function returns the number of groups which could not be expanded because they were completely enclosed
-fn advance_group_expansion(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng) -> usize {
+fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng, inner_rows:usize, inner_cols:usize) -> usize {
     // counter to keep track of fully enclosed groups
     let mut num_enclosed: usize = 0;
     // start looping through the groups to advance
@@ -112,7 +118,8 @@ fn advance_group_expansion(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, 
         let adjacent_coords = group.get_adjacent_coords(grid.rows() - 1, grid.cols() - 1, false);
         let mut open_coords = Vec::new();
         for coord in adjacent_coords {
-            if grid.get(coord.row, coord.col).unwrap().name.eq("empty") {
+            let this_group = &grid.get(coord.row, coord.col).unwrap().group;
+            if this_group.is_none() {
                 open_coords.push(coord);
             }//end if the coord is still unclaimed
         }//end checking each coord in adjacent_coords to add to open_coords
@@ -123,12 +130,13 @@ fn advance_group_expansion(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, 
             continue;
         }//end if we have an enclosed district
         // pick one of the open_coords
-        let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group);
+        let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group).to_owned();
         // update group name in grid
         let grid_spot = grid.get_mut(coord_to_use.row, coord_to_use.col).unwrap();
-        *grid_spot = group.clone();
         // update grouping locations
         group.locations.push(coord_to_use.clone());
+        // update grid ref
+        *grid_spot = GroupInstance::new(group.clone(), coord_to_use.clone(), inner_rows, inner_cols);
     }//end looping over each group to advance
     return num_enclosed;
 }//end advance_group_expansion(grid, groups)
@@ -169,7 +177,8 @@ fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:
 /// # prime_grid_with_groups()
 /// 
 /// Adds single instance of each group in random spots in the grid.
-fn prime_grid_with_groups(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng){
+/// inner_rows and inner_cols refer to the number of rows and columns that the grouped instance should have.
+fn prime_grid_with_groups(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng, inner_rows:usize, inner_cols:usize){
     // start looping through groups to actually do stuff
     for group in groups {
         loop {
@@ -177,12 +186,16 @@ fn prime_grid_with_groups(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, r
             let row = rng.gen_range(0..grid.rows());
             let col = rng.gen_range(0..grid.cols());
             // check that we're not overlapping
-            if grid.get(row, col).unwrap().name.eq("empty") {
+            let this_group = &grid.get(row, col).unwrap().group;
+            if this_group.is_none() {
                 // actually put the group in
                 let spot = grid.get_mut(row, col).unwrap();
-                *spot = group.clone();
+                // get the Coord for this new group instance
+                let this_coord = Coord::new(row, col);
                 // update the grouping
-                group.locations.push(Coord::new(row, col));
+                group.locations.push(this_coord.clone());
+                // put the right references into this GroupInstance
+                *spot = GroupInstance::new(group.clone(), this_coord.clone(), inner_rows, inner_cols);
                 break;
             }//end if we can continue
             else {continue;}
@@ -223,8 +236,8 @@ fn print_groupings(groupings:&Vec<Grouping>, title: &str) {
 /// # create_empty_grid()
 /// 
 /// This function creates an empty grid of the specified dimensions, filled with the string "empty".
-fn create_empty_grid(rows:usize, cols:usize) -> Grid<Grouping> {
+fn create_empty_grid(rows:usize, cols:usize) -> Grid<GroupInstance> {
     let mut empty = Grid::new(rows, cols);
-    empty.fill(Grouping::default());
+    empty.fill(GroupInstance::default());
     return empty;
 }//end createEmptyGrid
