@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use grid::Grid;
 
 
@@ -248,6 +250,18 @@ impl Default for BuildingType {
         BuildingType::Empty
     }//end default()
 }//end enum BuildingType
+
+impl Display for BuildingType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+			BuildingType::Empty => write!(f, "Empty"),
+			BuildingType::Road => write!(f, "Road"),
+			BuildingType::Residence => write!(f, "House"),
+			BuildingType::Shop => write!(f, "Shop"),
+			_ => write!(f, "Building")
+		}
+    }//end fmt
+}//end impl Display for BuildingType
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Building {
