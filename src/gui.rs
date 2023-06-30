@@ -220,6 +220,7 @@ impl GUI<'_> {
 		if self.districts_tab.children() < 1 {
 			self.districts_tab.add(&self.grid_flex.outer_flex);
 		}//end to tab if not there already
+		self.grid_flex.outer_flex.redraw();
 	}//end initialize_grid
 
 	/// # initialize_setting(self)
