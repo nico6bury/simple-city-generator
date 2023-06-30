@@ -1,5 +1,7 @@
+use fltk::app::App;
 use grid::Grid;
 use gui::GUI;
+use gui::MenuChoice;
 use rand::Rng;
 mod grouping;
 use grouping::Coord;
@@ -12,9 +14,11 @@ fn main() {
     let mut rng = rand::thread_rng();
     // create our empty grid
     let mut city_grid: Grid<String> = create_empty_grid(10, 10);
+    // create application object
+    let app = App::default();
     
     // set up gui
-    let mut gui = GUI::default();
+    let mut gui = GUI::default(&app);
     gui.initialize_top_menu();
     gui.initialize_settings();
 
@@ -30,10 +34,37 @@ fn main() {
     
     gui.initialize_grid(city_grid);
     // show the gui
-    let result = gui.show();
-    if result.is_err() {
-        println!("error: {}", result.err().unwrap().to_string());
-    }//end if we got an error trying to run our app
+    gui.show();
+    while app.wait() {
+        if let Some(val) = gui.msg_receiver.recv() {
+            match val {
+                MenuChoice::SetColor => {
+                    println!("Set Color");
+                },
+                MenuChoice::AddDistrict => {
+                    let new_dist_name = gui.get_new_district_name();
+                    if new_dist_name.is_some() {
+                        let new_district = Grouping::new(new_dist_name.unwrap());
+                        println!("Adding district {}", new_district.name);
+                        gui.districts.push(new_district);
+                    }//end if we got a name for a new district
+                },
+                MenuChoice::RemoveDistrict => {
+                    // figure out what to remove
+                    let district_index_to_remove = gui.choose_district();
+                    // remove the specified district
+                    if district_index_to_remove.is_some() {
+                        let removed = gui.districts.remove(district_index_to_remove.unwrap());
+                        println!("Removed district {}", removed.name);
+                    }//end if we can remove one
+                },
+                MenuChoice::GenerateDistricts => {
+                    println!("Generate Districts");
+                },
+                _ => {println!("Unhandled Message");}
+            }//end matching message values
+        }//end if we received a message from receiver
+    }//end application loop
 }//end main function
 
 /// # advance_group_expansion(grid, groups)

@@ -14,7 +14,6 @@ use fltk::group::Tabs;
 use fltk::input::IntInput;
 use fltk::menu;
 use fltk::menu::SysMenuBar;
-use fltk::prelude::FltkError;
 use fltk::prelude::GroupExt;
 use fltk::prelude::InputExt;
 use fltk::prelude::MenuExt;
@@ -36,13 +35,15 @@ pub enum MenuChoice {
 	GenerateDistricts,
 }//end enum MenuChoice
 
-pub struct GUI {
-	/// the application which contains everything else
-	pub application:App,
+pub struct GUI<'a> {
+	/// reference to application object that everything fits inside
+	pub application:&'a App,
 	/// the main window of the application
 	pub main_window:Window,
-	/// send and recieve things for menu buttons
-	pub menu_send_receive:(Sender<MenuChoice>,Receiver<MenuChoice>),
+	/// send messages for events
+	pub msg_sender:Sender<MenuChoice>,
+	// receive messages for events
+	pub msg_receiver:Receiver<MenuChoice>,
 	/// the menu bar at the top
 	pub top_menu:SysMenuBar,
 	/// the struct handling the 2d array of buttons for district representation
@@ -66,22 +67,24 @@ fn get_default_tab_padding() -> i32 {20}
 fn get_default_grid_width() -> i32 {get_default_win_width()}
 fn get_default_grid_height() -> i32 {get_default_win_height()-get_default_menu_height() - get_default_tab_padding()}
 
-impl GUI {
+impl GUI<'_> {
 	/// # default()
 	/// 
 	/// 
-	pub fn default() -> GUI {
+	pub fn default<'a>(application:&'a App) -> GUI<'a> {
+		let (s, r) = app::channel();
 		let mut gui = GUI {
-			application: App::default(),
+			application,
 			main_window: Window::default(),
-			menu_send_receive: app::channel(),
-			top_menu:SysMenuBar::default(),
-			grid_buttons:Vec::new(),
-			grid_flex:FlexGrid::default(),
-			tabs:Tabs::default(),
-			settings_tab:Group::default(),
-			districts_tab:Group::default(),
-			districts:Vec::new(),
+			msg_sender: s,
+			msg_receiver: r,
+			top_menu: SysMenuBar::default(),
+			grid_buttons: Vec::new(),
+			grid_flex: FlexGrid::default(),
+			tabs: Tabs::default(),
+			settings_tab: Group::default(),
+			districts_tab: Group::default(),
+			districts: Vec::new(),
 		};//end struct construction
 		gui.set_default_properties();
 		return gui;
@@ -139,21 +142,21 @@ impl GUI {
 			"&File/Choice1...\t",
 			Shortcut::Ctrl | 'n',
 			menu::MenuFlag::Normal,
-			self.menu_send_receive.0.clone(),
+			self.msg_sender.clone(),
 			MenuChoice::Choice1,
 		);
 		self.top_menu.add_emit(
 			"&File/Choice2...\t",
 			Shortcut::Ctrl | 'o',
 			menu::MenuFlag::Normal,
-			self.menu_send_receive.0.clone(),
+			self.msg_sender.clone(),
 			MenuChoice::Choice2,
 		);
 		self.top_menu.add_emit(
 			"Resize",
 			Shortcut::Ctrl | 's',
 			menu::MenuFlag::Normal,
-			self.menu_send_receive.0.clone(),
+			self.msg_sender.clone(),
 			MenuChoice::Resize,
 		);
 	}//end initialize_top_menu
@@ -213,24 +216,24 @@ impl GUI {
 			.with_size(130, 30)
 			.with_pos(50, 100)
 			.with_label("Set Color...");
-		set_color_button.emit(self.menu_send_receive.0.clone(), MenuChoice::SetColor);
+		set_color_button.emit(self.msg_sender.clone(), MenuChoice::SetColor);
 		let mut add_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&set_color_button, 10)
 			.with_label("Add District...");
-		add_district_button.emit(self.menu_send_receive.0.clone(), MenuChoice::AddDistrict);
+		add_district_button.emit(self.msg_sender.clone(), MenuChoice::AddDistrict);
 		let mut remove_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&add_district_button, 10)
 			.with_label("Remove District...");
-		remove_district_button.emit(self.menu_send_receive.0.clone(), MenuChoice::RemoveDistrict);
+		remove_district_button.emit(self.msg_sender.clone(), MenuChoice::RemoveDistrict);
 
 		// button for generating districts
 		let mut gen_districts_button = Button::default()
 			.with_size(150, 40)
 			.below_of(&remove_district_button, 50)
 			.with_label("Generate Districts");
-		gen_districts_button.emit(self.menu_send_receive.0.clone(), MenuChoice::GenerateDistricts);
+		gen_districts_button.emit(self.msg_sender.clone(), MenuChoice::GenerateDistricts);
 
 		// add everything to settings tab
 		self.settings_tab.add(&grid_rows_input);
@@ -243,46 +246,15 @@ impl GUI {
 	/// # show(self)
 	/// 
 	/// Simply causes the gui to become visible, or returns an error if it can't
-	pub fn show(&mut self) -> Result<(), FltkError> {
+	pub fn show(&mut self) {
 		self.grid_flex.outer_flex.recalc();
 		self.main_window.show();
-		while self.application.wait() {
-			if let Some(val) = self.menu_send_receive.1.recv() {
-				match val {
-					MenuChoice::SetColor => {
-						println!("Set Color");
-					},
-					MenuChoice::AddDistrict => {
-						let new_dist_name = self.get_new_district_name();
-						if new_dist_name.is_some() {
-							let new_district = Grouping::new(new_dist_name.unwrap());
-							println!("Adding district {}", new_district.name);
-							self.districts.push(new_district);
-						}//end if we got a name for a new district
-					},
-					MenuChoice::RemoveDistrict => {
-						// figure out what to remove
-						let district_index_to_remove = self.choose_district();
-						// remove the specified district
-						if district_index_to_remove.is_some() {
-							let removed = self.districts.remove(district_index_to_remove.unwrap());
-							println!("Removed district {}", removed.name);
-						}//end if we can remove one
-					},
-					MenuChoice::GenerateDistricts => {
-						println!("Generate Districts");
-					},
-					_ => {println!("Unhandled Message");}
-				}//end matching message values
-			}//end if we received a message from receiver
-		}//end application loop
-		Result::Ok(())
 	}//end show(&mut self)
 
 	/// # get_new_district_name(&self)
 	/// 
 	/// Opens a dialgue box and displays it to the user, prompting them to give a new district name.
-	fn get_new_district_name(&self) -> Option<String> {
+	pub fn get_new_district_name(&self) -> Option<String> {
 		let dialog = "Enter the name for a new district. It cannot be empty.";
 
 		loop {
@@ -305,7 +277,7 @@ impl GUI {
 	/// ## Return
 	/// returns the index of self.districts that was selected.
 	/// If the user cancelled the dialogue, then None will be returned.
-	fn choose_district(&self) -> Option<usize> {
+	pub fn choose_district(&self) -> Option<usize> {
 		let mut choose_district_dialog = "Enter the name of a district in the following list, case sensitive.".to_string();
 		for district in &self.districts {
 			choose_district_dialog = format!("{}\n{}", choose_district_dialog,district.name);
