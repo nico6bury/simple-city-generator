@@ -70,6 +70,9 @@ fn main() {
                     let grid_dims = gui.get_districts_dims();
                     city_grid = create_empty_grid(grid_dims.0, grid_dims.1);
 
+                    // reset district locations
+                    gui.clear_district_locations();
+
                     // add group starts in random spots
                     println!("Starting grid priming");
                     prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng);
@@ -115,7 +118,10 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
         }//end checking each coord in adjacent_coords to add to open_coords
 
         // don't try to advance if there's no valid open coords
-        if open_coords.len() == 0 { num_enclosed += 1; continue;}
+        if open_coords.len() == 0 {
+            num_enclosed += 1;
+            continue;
+        }//end if we have an enclosed district
         // pick one of the open_coords
         let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group);
         // update group name in grid

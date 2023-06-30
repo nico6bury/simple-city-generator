@@ -176,6 +176,10 @@ impl GUI<'_> {
 	/// 
 	/// Updates the grid view, and also initializes
 	pub fn update_grid(&mut self, ext_grid:&Grid<String>) {
+		// clear previous nonsense
+		if self.grid_flex.outer_flex.children() > 0 {
+			self.grid_flex.clear_inner_flexes();
+		}//end if we have previous stuff to take care of
 		// create a 2d array of buttons
 		let mut button_grid: Vec<Vec<Button>> = Vec::new();
 		// set size of buttons
@@ -197,9 +201,6 @@ impl GUI<'_> {
 			}//end converting each string into a button
 			button_grid.push(temp_vec);
 		}//end going through each row
-		if self.grid_flex.get_num_buttons() > 0 {
-			self.grid_flex.outer_flex.clear();
-		}//end if we have previous stuff to take care of
 
 		// save our hard-earned button grid in our struct
 		self.grid_buttons = button_grid;
@@ -308,6 +309,15 @@ impl GUI<'_> {
 		}//end adding each district to buffer
 	}//end update_district_list_buf(&mut self)
 
+	/// # clear_district_locations(self)
+	/// 
+	/// clears locations in districts. best to do this whenever regenerating things
+	pub fn clear_district_locations(&mut self) {
+		for dist_idx in 0..self.districts.len() {
+			self.districts.get_mut(dist_idx).unwrap().locations.clear();
+		}//end clearing each district's locations
+	}//end clear_district_locations(self)
+
 	/// # show(self)
 	/// 
 	/// Simply causes the gui to become visible, or returns an error if it can't
@@ -411,18 +421,14 @@ impl FlexGrid {
 		}//end struct construction
 	}//end new()
 
-	/// # get_num_buttons(&self)
+	/// # clear_inner_flexes
 	/// 
-	/// gets the total number of buttons in both dimension
-	pub fn get_num_buttons(&self) -> i32 {
-		let mut counter = 0;
-		for outer_vec in &self.buttons {
-			for _ in outer_vec {
-				counter += 1;
-			}//end inner loop
-		}//end outer loop
-		counter
-	}//end get_num_buttons(&self)
+	/// clears the children of this struct. should hopefully work
+	pub fn clear_inner_flexes(&mut self) {
+		self.outer_flex.clear();
+		self.inner_flexes.clear();
+		self.buttons.clear();
+	}//end clear_inner_flexes(&mut self)
 
 	/// #initialize_flex(self, grid)]
 	/// 
@@ -454,7 +460,10 @@ impl FlexGrid {
 			let this_inner_flex = self.inner_flexes.get_mut(row_index).unwrap();
 			let this_button_row = buttons.get(row_index).unwrap();
 			for button in this_button_row {
-				this_inner_flex.add(button);
+				if !button.was_deleted() {
+					this_inner_flex.add(button);
+				}//end if button wasn't deleted
+				else {println!("button was deleted, row {}", row_index);}
 			}//end adding each button in row to inner flex
 		}//end looping over each inner flex and adding buttons
 	}//end fill_flex
