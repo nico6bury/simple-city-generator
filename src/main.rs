@@ -1,4 +1,6 @@
 use fltk::app::App;
+use fltk_theme::ThemeType;
+use fltk_theme::WidgetTheme;
 use grid::Grid;
 use gui::GUI;
 use gui::MenuChoice;
@@ -16,6 +18,9 @@ fn main() {
     let mut city_grid: Grid<String> = create_empty_grid(10, 10);
     // create application object
     let app = App::default();
+    // set app theme
+    let theme = WidgetTheme::new(ThemeType::Dark);
+    theme.apply();
     
     // set up gui
     let mut gui = GUI::default(&app);
