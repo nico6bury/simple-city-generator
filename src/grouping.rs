@@ -6,7 +6,7 @@ use grid::Grid;
 /// # Coord
 /// 
 /// just a shorthand for a tuple containing an row and col index
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
 pub struct Coord {
 	/// # row
 	/// 
