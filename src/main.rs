@@ -17,7 +17,7 @@ fn main() {
     // create random number generator for whole program
     let mut rng = rand::thread_rng();
     // create our empty grid
-    let mut city_grid: Grid<GroupInstance>;
+    let mut city_grid: Grid<GroupInstance> = create_empty_grid(10, 10);
     // create application object
     let app = App::default();
     // set app theme
@@ -116,6 +116,10 @@ fn main() {
                             // print out the row-col pair for all to see
                             println!("Received message asking after neighborhood at row {} and column {}", row_idx + 1, col_idx + 1);
                             // TODO: Send Message to GUI to display neighborhood at coordinate
+                            // get the GroupInstance at the specified coordinate
+                            let this_nhood = city_grid.get(row_idx, col_idx).unwrap();
+                            // display it, hopefully ????
+                            gui.update_neighborhood_tab(this_nhood);
                         }//end found a coordinate pair
                     }//end if we have a comma-separated value
                     else {println!("Unhandled message!!\n")}

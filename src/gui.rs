@@ -57,12 +57,16 @@ pub struct GUI<'a> {
 	pub grid_buttons:Vec<Vec<Button>>,
 	/// the struct handling the grid of buttons for districts
 	pub grid_flex: FlexGrid,
+	/// the struct handling the grid of buttons for neighborhoods
+	pub neighborhood_flex: FlexGrid,
 	/// group holding the various tabs
 	pub tabs:Tabs,
 	/// group holding the settings for generation
 	pub settings_tab:Group,
 	/// group holding the display of generated districts
 	pub districts_tab:Group,
+	/// group holding the display of generated districts
+	pub neighborhood_tab:Group,
 	/// the list of groupings that we'll generate districts from, each grouping is a district
 	pub districts:Vec<Grouping>,
 	/// The text buffer for displaying our list of the districts
@@ -98,9 +102,11 @@ impl GUI<'_> {
 			top_menu: SysMenuBar::default(),
 			grid_buttons: Vec::new(),
 			grid_flex: FlexGrid::default(),
+			neighborhood_flex: FlexGrid::default(),
 			tabs: Tabs::default(),
 			settings_tab: Group::default(),
 			districts_tab: Group::default(),
+			neighborhood_tab: Group::default(),
 			districts: Vec::new(),
 			districts_list_buffer: TextBuffer::default(),
 			districts_rows_input: IntInput::default(),
@@ -120,6 +126,7 @@ impl GUI<'_> {
 			.with_size(get_default_win_width(), get_default_win_height())
 			.with_label("CIS 536 City Generator");
 		self.main_window.make_resizable(true);
+		self.main_window.end();
 
 		// set default groupings
 		self.districts.push(Grouping::new("slum".to_string()).with_color((222,42,195)));
@@ -154,6 +161,14 @@ impl GUI<'_> {
 			.with_type(group::FlexType::Row);
 		self.districts_tab.end();
 		self.tabs.add(&self.districts_tab);
+
+		// neighborhood tab
+		self.neighborhood_tab = Group::default()
+			.with_pos(0, self.tabs.y() + get_default_tab_padding())
+			.with_size(self.tabs.width(), self.tabs.height())
+			.with_label("Neighborhood");
+		self.neighborhood_tab.end();
+		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
 	/// # initialize_top_menu
 	/// 
@@ -228,7 +243,7 @@ impl GUI<'_> {
 		// save our hard-earned button grid in our struct
 		self.grid_buttons = button_grid;
 		// make the flex grid
-		self.grid_flex.initialize_flex(ext_grid);
+		self.grid_flex.initialize_flex(ext_grid.rows(), ext_grid.cols());
 		self.grid_flex.fill_flex(&self.grid_buttons);
 		// reposition flex grid because it likes to get lost (also screws up resizing for some ungodly reason)
 		// self.grid_flex.outer_flex.resize(0 - button_width / 2, self.districts_tab.y(), self.grid_flex.outer_flex.width() + button_width / 2, self.grid_flex.outer_flex.height());
@@ -378,7 +393,7 @@ impl GUI<'_> {
 
 	/// # show(self)
 	/// 
-	/// Simply causes the gui to become visible, or returns an error if it can't
+	/// Simply causes the gui to become visible
 	pub fn show(&mut self) {
 		self.grid_flex.outer_flex.recalc();
 		self.main_window.show();
@@ -416,6 +431,46 @@ impl GUI<'_> {
 	pub fn show_message(&self, msg:&str) {
 		dialog::message(0, 0, msg);
 	}//end show_message(&self, msg)
+
+	/// # show_neighborhood_window(&self, nhood)
+	/// 
+	/// shows a new window with a colorful display of the specified neighborhood.
+	pub fn update_neighborhood_tab(&mut self,nhood:&GroupInstance) {
+		// try and re-initialize neighborhood_flex
+		self.neighborhood_flex = FlexGrid::default();
+		// clear previous nonsense
+		if self.neighborhood_flex.outer_flex.children() > 0 {
+			self.neighborhood_flex.clear_inner_flexes();
+		}//end if we have previous stuff to take care of
+		// create and fill a 2d vector of buttons
+		let mut buttons_2d = Vec::new();
+		let button_width = get_default_grid_width() / nhood.sub_grid.cols() as i32;
+		let button_height = get_default_grid_height() / nhood.sub_grid.rows() as i32;
+		for row_idx in 0..nhood.sub_grid.rows() {
+			let mut this_row = Vec::new();
+			for col_idx in 0..nhood.sub_grid.cols() {
+				let this_building = nhood.sub_grid.get(row_idx, col_idx).unwrap();
+				let mut this_button = Button::default()
+					.with_size(button_width, button_height)
+					.with_label(format!("{}",this_building.build_type).as_str());
+				this_button.set_color(Color::from_rgb(this_building.rgb_color.0, this_building.rgb_color.1, this_building.rgb_color.2));
+				this_row.push(this_button);
+			}//end looping through columns of grid
+			buttons_2d.push(this_row);
+		}//end looping through rows of grid
+		// initialize our flex grid's size
+		self.neighborhood_flex.initialize_flex(nhood.sub_grid.rows(), nhood.sub_grid.cols());
+		// fill the flex_grid
+		self.neighborhood_flex.fill_flex(&buttons_2d);
+		// throw our buttons in the flex
+		self.neighborhood_flex.buttons = buttons_2d;
+		// actually try and make things show up
+		if self.neighborhood_tab.children() < 1 {
+			self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
+		}//end to tab if not there already
+		self.neighborhood_flex.outer_flex.recalc();
+		self.neighborhood_flex.outer_flex.redraw();
+	}//end show_neighborhood_window(&self, nhood)
 
 	/// # choose_district(&self)
 	/// 
@@ -491,15 +546,15 @@ impl FlexGrid {
 	/// #initialize_flex(self, grid)]
 	/// 
 	/// Sets up the flex-boxes like a grid
-	pub fn initialize_flex(&mut self, grid:&Grid<GroupInstance>) {
+	pub fn initialize_flex(&mut self, rows:usize, cols:usize) {
 		// set outer flex to be have rows of elements
 		self.outer_flex.set_type(group::FlexType::Row);
 		self.outer_flex.set_align(Align::LeftTop);
-		for _row_index in 0..grid.rows() {
+		for _row_index in 0..rows {
 			let inner_flex_x = 0;//self.outer_flex.x();
-			let inner_flex_y = self.outer_flex.y() + (self.outer_flex.width() / grid.cols() as i32);
-			let inner_flex_w = get_default_grid_width() / grid.cols() as i32;
-			let inner_flex_h = get_default_grid_height() / grid.rows() as i32;
+			let inner_flex_y = self.outer_flex.y() + (self.outer_flex.width() / cols as i32);
+			let inner_flex_w = get_default_grid_width() / cols as i32;
+			let inner_flex_h = get_default_grid_height() / rows as i32;
 			let mut inner_flex = Flex::new(inner_flex_x,inner_flex_y,inner_flex_w,inner_flex_h,None);
 			inner_flex.set_type(group::FlexType::Column);
 			// make flex show up
