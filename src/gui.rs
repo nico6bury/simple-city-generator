@@ -70,6 +70,10 @@ pub struct GUI<'a> {
 	districts_rows_input:IntInput,
 	/// The input for number of columns of districts to generate
 	districts_cols_input:IntInput,
+	/// The input for number of rows of neighborhoods to generate
+	neighborhood_rows_input:IntInput,
+	/// The input for number of columsn of neighborhoods to generate
+	neighborhood_cols_input:IntInput,
 }//end struct gui
 
 fn get_default_win_width() -> i32 {900}
@@ -100,6 +104,8 @@ impl GUI<'_> {
 			districts_list_buffer: TextBuffer::default(),
 			districts_rows_input: IntInput::default(),
 			districts_cols_input: IntInput::default(),
+			neighborhood_rows_input: IntInput::default(),
+			neighborhood_cols_input: IntInput::default(),
 		};//end struct construction
 		gui.set_default_properties();
 		return gui;
@@ -234,17 +240,29 @@ impl GUI<'_> {
 	/// 
 	/// 
 	pub fn initialize_settings(&mut self) {
-		// int inputs for grid rows and columns
+		// int inputs for district rows and columns
 		self.districts_rows_input = IntInput::default()
 			.with_size(50, 20)
-			.with_pos(100, 50)
-			.with_label("Grid Rows");
+			.with_pos(150, 50)
+			.with_label("District Rows");
 		self.districts_rows_input.set_value("10");
 		self.districts_cols_input = IntInput::default()
 			.with_size(50, 20)
-			.right_of(&self.districts_rows_input, 120)
-			.with_label("Grid Columns");
+			.right_of(&self.districts_rows_input, 135)
+			.with_label("District Columns");
 		self.districts_cols_input.set_value("10");
+
+		// int inputs for neighborhood rows and columns
+		self.neighborhood_rows_input = IntInput::default()
+			.with_size(50, 20)
+			.right_of(&self.districts_cols_input, 190)
+			.with_label("Neighborhood Rows");
+		self.neighborhood_rows_input.set_value("10");
+		self.neighborhood_cols_input = IntInput::default()
+			.with_size(50, 20)
+			.right_of(&self.neighborhood_rows_input, 170)
+			.with_label("Neighborhood Cols");
+		self.neighborhood_cols_input.set_value("10");
 
 		// buttons for editing districts
 		let mut set_color_button = Button::default()
@@ -283,6 +301,8 @@ impl GUI<'_> {
 		// add everything to settings tab
 		self.settings_tab.add(&self.districts_rows_input);
 		self.settings_tab.add(&self.districts_cols_input);
+		self.settings_tab.add(&self.neighborhood_rows_input);
+		self.settings_tab.add(&self.neighborhood_cols_input);
 		self.settings_tab.add(&set_color_button);
 		self.settings_tab.add(&add_district_button);
 		self.settings_tab.add(&remove_district_button);
@@ -292,7 +312,7 @@ impl GUI<'_> {
 
 	/// # get_districts_dims(&self)
 	/// 
-	/// gets the number of rows and columns for grid dimensions
+	/// gets the number of rows and columns for district dimensions
 	pub fn get_districts_dims(&mut self) -> (usize, usize) {
 		// get the raw values
 		let mut rows_result: i32 = self.districts_rows_input.value().parse().expect("Should have been an int???");
@@ -309,6 +329,26 @@ impl GUI<'_> {
 		// return dims
 		(rows_result as usize, cols_result as usize)
 	}//end get_districts_dims
+
+	/// # get_neighborhood_dims(&self)
+	/// 
+	/// gets the number of rows and columns for neighborhood dimensions
+	pub fn get_neighborhood_dims(&mut self) -> (usize, usize) {
+		// get the raw values
+		let mut rows_result: i32 = self.neighborhood_rows_input.value().parse().expect("Should have been an int???");
+		let mut cols_result: i32 = self.neighborhood_cols_input.value().parse().expect("Should have been an int???");
+		
+		// do a little input handling
+		rows_result = rows_result.max(3);
+		cols_result = cols_result.max(3);
+
+		// make sure we update our text in case we handled input
+		self.neighborhood_rows_input.set_value(&rows_result.to_string());
+		self.neighborhood_cols_input.set_value(&cols_result.to_string());
+
+		// return dims
+		(rows_result as usize, cols_result as usize)
+	}//end get_neighborhood_dims
 
 	/// # update_district_list_buf
 	/// 

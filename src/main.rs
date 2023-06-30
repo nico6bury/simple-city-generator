@@ -66,23 +66,25 @@ fn main() {
                     }//end if we can remove one
                 },
                 MenuChoice::GenerateDistricts => {
-                    // figure out grid row and column width to make new grid
-                    let grid_dims = gui.get_districts_dims();
-                    city_grid = create_empty_grid(grid_dims.0, grid_dims.1);
+                    // figure out district row and column width to make new grid
+                    let distr_dims = gui.get_districts_dims();
+                    city_grid = create_empty_grid(distr_dims.0, distr_dims.1);
+                    // figure out neighborhood row and column width for inner grids
+                    let neigh_dims = gui.get_neighborhood_dims();
 
                     // reset district locations
                     gui.clear_district_locations();
 
                     // add group starts in random spots
                     println!("Starting grid priming");
-                    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng, 10, 10);
+                    prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
                     println!("Grid is primed.");
                     
                     // advance groups until enclosed
                     let mut all_enclosed = false;
                     println!("Starting grid generation");
                     while !all_enclosed {
-                        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, 10, 10);
+                        let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
                         println!("{} groups are fully enclosed", &num_enclosed);
                         all_enclosed = num_enclosed.eq(&gui.districts.len());
                     }//end looping while some groupings are still able to expand
