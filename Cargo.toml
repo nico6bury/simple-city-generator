@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-fltk = "1.4.6"
+fltk = { version = "1.4.6", features = ["fltk-bundled"] }
 grid = "0.10.0"
 rand = "0.8.5"
