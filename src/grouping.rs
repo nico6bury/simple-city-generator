@@ -71,7 +71,7 @@ impl Grouping {
 	/// Creates a new grouping with name "default"
 	pub fn default() -> Grouping {
 		Grouping {
-			name: "default".to_string(),
+			name: "empty".to_string(),
 			locations: Vec::new(),
 			rgb_color: (0,0,0),
 		}//end struct construction
