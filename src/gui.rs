@@ -5,7 +5,6 @@ use fltk::app::Sender;
 use fltk::button::Button;
 use fltk::dialog;
 use fltk::enums::Align;
-use fltk::enums::Color;
 use fltk::enums::FrameType;
 use fltk::enums::Shortcut;
 use fltk::group;
