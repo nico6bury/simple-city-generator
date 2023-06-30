@@ -37,7 +37,7 @@ impl Coord {
 /// # Grouping
 /// 
 /// A struct to keep track of the instances a group is located within a grid
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Grouping {
 	/// # group
 	/// 
