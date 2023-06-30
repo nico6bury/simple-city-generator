@@ -26,6 +26,7 @@ use fltk::text::TextDisplay;
 use fltk::window::Window;
 use grid::Grid;
 
+use crate::grouping::Coord;
 use crate::grouping::GroupInstance;
 use crate::grouping::Grouping;
 
@@ -46,10 +47,10 @@ pub struct GUI<'a> {
 	pub application:&'a App,
 	/// the main window of the application
 	pub main_window:Window,
-	/// send messages for events
-	pub msg_sender:Sender<MenuChoice>,
-	// receive messages for events
-	pub msg_receiver:Receiver<MenuChoice>,
+	/// send messages for menu events
+	pub menu_msg_sender:Sender<String>,
+	// receive messages for menu events
+	pub menu_msg_receiver:Receiver<String>,
 	/// the menu bar at the top
 	pub top_menu:SysMenuBar,
 	/// the struct handling the 2d array of buttons for district representation
@@ -88,12 +89,12 @@ impl GUI<'_> {
 	/// 
 	/// 
 	pub fn default<'a>(application:&'a App) -> GUI<'a> {
-		let (s, r) = app::channel();
+		let (s1, r1) = app::channel();
 		let mut gui = GUI {
 			application,
 			main_window: Window::default(),
-			msg_sender: s,
-			msg_receiver: r,
+			menu_msg_sender: s1,
+			menu_msg_receiver: r1,
 			top_menu: SysMenuBar::default(),
 			grid_buttons: Vec::new(),
 			grid_flex: FlexGrid::default(),
@@ -163,22 +164,22 @@ impl GUI<'_> {
 			"&File/Choice1...\t",
 			Shortcut::Ctrl | 'n',
 			menu::MenuFlag::Normal,
-			self.msg_sender.clone(),
-			MenuChoice::Choice1,
+			self.menu_msg_sender.clone(),
+			"MenuChoice::Choice1".to_string(),
 		);
 		self.top_menu.add_emit(
 			"&File/Choice2...\t",
 			Shortcut::Ctrl | 'o',
 			menu::MenuFlag::Normal,
-			self.msg_sender.clone(),
-			MenuChoice::Choice2,
+			self.menu_msg_sender.clone(),
+			"MenuChoice::Choice2".to_string(),
 		);
 		self.top_menu.add_emit(
 			"Regen",
 			Shortcut::Ctrl | 'r',
 			menu::MenuFlag::Normal,
-			self.msg_sender.clone(),
-			MenuChoice::GenerateDistricts,
+			self.menu_msg_sender.clone(),
+			"MenuChoice::GenerateDistricts".to_string(),
 		);
 	}//end initialize_top_menu
 	/// # update_grid(self, ext_grid)
@@ -216,6 +217,8 @@ impl GUI<'_> {
 					// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
 					new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
 				}//end if this grouped instance is actually grouped
+				// add click event/emission
+				new_button.emit(self.menu_msg_sender.clone(), format!("{},{}",this_group.coord.unwrap().row,this_group.coord.unwrap().col));
 				// add the button to the list
 				temp_vec.push(new_button);
 			}//end converting each string into a button
@@ -269,24 +272,24 @@ impl GUI<'_> {
 			.with_size(130, 30)
 			.with_pos(50, 100)
 			.with_label("Set Color...");
-		set_color_button.emit(self.msg_sender.clone(), MenuChoice::SetColor);
+		set_color_button.emit(self.menu_msg_sender.clone(), "MenuChoice::SetColor".to_string());
 		let mut add_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&set_color_button, 10)
 			.with_label("Add District...");
-		add_district_button.emit(self.msg_sender.clone(), MenuChoice::AddDistrict);
+		add_district_button.emit(self.menu_msg_sender.clone(), "MenuChoice::AddDistrict".to_string());
 		let mut remove_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&add_district_button, 10)
 			.with_label("Remove District...");
-		remove_district_button.emit(self.msg_sender.clone(), MenuChoice::RemoveDistrict);
+		remove_district_button.emit(self.menu_msg_sender.clone(), "MenuChoice::RemoveDistrict".to_string());
 
 		// button for generating districts
 		let mut gen_districts_button = Button::default()
 			.with_size(150, 40)
 			.below_of(&remove_district_button, 50)
 			.with_label("Generate Districts");
-		gen_districts_button.emit(self.msg_sender.clone(), MenuChoice::GenerateDistricts);
+		gen_districts_button.emit(self.menu_msg_sender.clone(), "MenuChoice::GenerateDistricts".to_string());
 
 		// scrollable text display for showing districts
 		let mut dist_list_disp = TextDisplay::default()

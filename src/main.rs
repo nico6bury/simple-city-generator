@@ -32,9 +32,9 @@ fn main() {
     // show the gui
     gui.show();
     while app.wait() {
-        if let Some(val) = gui.msg_receiver.recv() {
-            match val {
-                MenuChoice::SetColor => {
+        if let Some(val) = gui.menu_msg_receiver.recv() {
+            match val.as_str() {
+                "MenuChoice::SetColor" => {
                     let dist_index_option = gui.choose_district();
                     if dist_index_option.is_some() {
                         let dist_index = dist_index_option.unwrap();
@@ -47,7 +47,7 @@ fn main() {
                         }//end if we got a color to use
                     }//end if we got something
                 },
-                MenuChoice::AddDistrict => {
+                "MenuChoice::AddDistrict" => {
                     let new_dist_name = gui.get_new_district_name();
                     if new_dist_name.is_some() {
                         let new_district = Grouping::new(new_dist_name.unwrap());
@@ -56,7 +56,7 @@ fn main() {
                         gui.update_district_list_buf();
                     }//end if we got a name for a new district
                 },
-                MenuChoice::RemoveDistrict => {
+                "MenuChoice::RemoveDistrict" => {
                     // figure out what to remove
                     let district_index_to_remove = gui.choose_district();
                     // remove the specified district
@@ -66,7 +66,7 @@ fn main() {
                         gui.update_district_list_buf();
                     }//end if we can remove one
                 },
-                MenuChoice::GenerateDistricts => {
+                "MenuChoice::GenerateDistricts" => {
                     // figure out district row and column width to make new grid
                     let distr_dims = gui.get_districts_dims();
                     city_grid = create_empty_grid(distr_dims.0, distr_dims.1);
@@ -77,36 +77,49 @@ fn main() {
                     gui.clear_district_locations();
 
                     // add group starts in random spots
-                    println!("Starting grid priming");
+                    println!("\nStarting grid priming");
                     prime_grid_with_groups(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
-                    println!("Grid is primed.");
+                    println!("\nGrid is primed.");
                     
                     // advance groups until enclosed
                     let mut all_enclosed = false;
-                    println!("Starting grid generation");
+                    println!("\nStarting grid generation");
                     while !all_enclosed {
                         let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
                         println!("{} groups are fully enclosed", &num_enclosed);
                         all_enclosed = num_enclosed.eq(&gui.districts.len());
                     }//end looping while some groupings are still able to expand
-                    println!("Finished generating grid");
+                    println!("\nFinished generating grid");
 
                     // display the new grid stuff
                     gui.update_grid(&city_grid);
 
                     // generate all neighborhoods
-                    println!("Starting neighborhood generation");
+                    println!("\nStarting neighborhood generation");
                     for row in 0..city_grid.rows() {
                         for col in 0..city_grid.cols() {
                             let this_instance = city_grid.get_mut(row, col).expect("valid index");
                             generate_neighborhood(this_instance, &mut rng);
                         }//end looping over cols in city grid
                     }//end looping over rows in city grid
-                    println!("Finished neighborhood generation");
+                    println!("Finished neighborhood generation\n");
 
                     // TODO: Make it so that neighborhoods can be displayed
                 },
-                _ => {println!("Unhandled Message");}
+                _ => {
+                    if val.contains(',') {
+                        let coord_vals: Vec<&str> = val.split(',').collect();
+                        if coord_vals.len() == 2 {
+                            // get our row and col index parsed
+                            let row_idx:usize = coord_vals.get(0).unwrap().parse().unwrap();
+                            let col_idx:usize = coord_vals.get(1).unwrap().parse().unwrap();
+                            // print out the row-col pair for all to see
+                            println!("Received message asking after neighborhood at row {} and column {}", row_idx + 1, col_idx + 1);
+                            // TODO: Send Message to GUI to display neighborhood at coordinate
+                        }//end found a coordinate pair
+                    }//end if we have a comma-separated value
+                    else {println!("Unhandled message!!\n")}
+                }//end if we have an irregular message
             }//end matching message values
         }//end if we received a message from receiver
     }//end application loop
