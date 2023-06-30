@@ -174,14 +174,21 @@ impl GUI<'_> {
 	
 	/// # switch_tab(&mut self, tab_idx:i32)
 	pub fn switch_tab(&mut self, tab_idx:u8) {
+		let cur_vis_val = self.tabs.value();
+		if cur_vis_val.is_none() {return;}
+		let cur_vis = cur_vis_val.unwrap();
+
 		match tab_idx {
 			0 => {
+				if cur_vis.is_same(&self.settings_tab) {return;}
 				self.tabs.set_value(&self.settings_tab).expect("tabs");
 			},
 			1 => {
+				if cur_vis.is_same(&self.districts_tab) {return;}
 				self.tabs.set_value(&self.districts_tab).expect("tabs");
 			},
 			2 => {
+				if cur_vis.is_same(&self.neighborhood_tab) {return;}
 				self.tabs.set_value(&self.neighborhood_tab).expect("tabs");
 			},
 			_ => {
@@ -225,6 +232,7 @@ impl GUI<'_> {
 	/// 
 	/// Updates the grid view, and also initializes
 	pub fn update_grid(&mut self, ext_grid:&Grid<GroupInstance>) {
+		self.grid_flex = FlexGrid::default();
 		// clear previous nonsense
 		if self.grid_flex.outer_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
@@ -276,6 +284,7 @@ impl GUI<'_> {
 			self.districts_tab.add(&self.grid_flex.outer_flex);
 		}//end to tab if not there already
 		self.grid_flex.outer_flex.redraw();
+		self.grid_flex.outer_flex.recalc();
 	}//end initialize_grid
 
 	/// # initialize_setting(self)
