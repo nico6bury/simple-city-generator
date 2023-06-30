@@ -175,7 +175,7 @@ impl GUI<'_> {
 	/// # update_grid(self, ext_grid)
 	/// 
 	/// Updates the grid view, and also initializes
-	pub fn update_grid(&mut self, ext_grid:&Grid<String>) {
+	pub fn update_grid(&mut self, ext_grid:&Grid<Grouping>) {
 		// clear previous nonsense
 		if self.grid_flex.outer_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
@@ -188,7 +188,7 @@ impl GUI<'_> {
 		for row_index in 0..ext_grid.rows() as i32 {
 			let mut temp_vec: Vec<Button> = Vec::new();
 			for col_index in 0..ext_grid.cols() as i32 {
-				let mut shrunk = ext_grid.get(row_index as usize, col_index as usize).unwrap().to_owned();
+				let mut shrunk = ext_grid.get(row_index as usize, col_index as usize).unwrap().name.to_owned();
 				if shrunk.len() > 9 {
 					shrunk = shrunk[0..9].to_string();
 				}//end if we need to shrink the name
@@ -433,7 +433,7 @@ impl FlexGrid {
 	/// #initialize_flex(self, grid)]
 	/// 
 	/// Sets up the flex-boxes like a grid
-	pub fn initialize_flex(&mut self, grid:&Grid<String>) {
+	pub fn initialize_flex(&mut self, grid:&Grid<Grouping>) {
 		// set outer flex to be have rows of elements
 		self.outer_flex.set_type(group::FlexType::Row);
 		self.outer_flex.set_align(Align::LeftTop);

@@ -15,7 +15,7 @@ fn main() {
     // create random number generator for whole program
     let mut rng = rand::thread_rng();
     // create our empty grid
-    let mut city_grid: Grid<String>;
+    let mut city_grid: Grid<Grouping>;
     // create application object
     let app = App::default();
     // set app theme
@@ -103,7 +103,7 @@ fn main() {
 /// 
 /// ## Return
 /// This function returns the number of groups which could not be expanded because they were completely enclosed
-fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng) -> usize {
+fn advance_group_expansion(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng) -> usize {
     // counter to keep track of fully enclosed groups
     let mut num_enclosed: usize = 0;
     // start looping through the groups to advance
@@ -112,7 +112,7 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
         let adjacent_coords = group.get_adjacent_coords(grid.rows() - 1, grid.cols() - 1, false);
         let mut open_coords = Vec::new();
         for coord in adjacent_coords {
-            if grid.get(coord.row, coord.col).unwrap().eq("empty") {
+            if grid.get(coord.row, coord.col).unwrap().name.eq("empty") {
                 open_coords.push(coord);
             }//end if the coord is still unclaimed
         }//end checking each coord in adjacent_coords to add to open_coords
@@ -126,7 +126,7 @@ fn advance_group_expansion(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rn
         let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group);
         // update group name in grid
         let grid_spot = grid.get_mut(coord_to_use.row, coord_to_use.col).unwrap();
-        *grid_spot = group.name.clone();
+        *grid_spot = group.clone();
         // update grouping locations
         group.locations.push(coord_to_use.clone());
     }//end looping over each group to advance
@@ -169,7 +169,7 @@ fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:
 /// # prime_grid_with_groups()
 /// 
 /// Adds single instance of each group in random spots in the grid.
-fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng){
+fn prime_grid_with_groups(grid:&mut Grid<Grouping>, groups:&mut Vec<Grouping>, rng:&mut ThreadRng){
     // start looping through groups to actually do stuff
     for group in groups {
         loop {
@@ -177,10 +177,10 @@ fn prime_grid_with_groups(grid:&mut Grid<String>, groups:&mut Vec<Grouping>, rng
             let row = rng.gen_range(0..grid.rows());
             let col = rng.gen_range(0..grid.cols());
             // check that we're not overlapping
-            if grid.get(row, col).unwrap().eq("empty") {
+            if grid.get(row, col).unwrap().name.eq("empty") {
                 // actually put the group in
                 let spot = grid.get_mut(row, col).unwrap();
-                *spot = group.name.clone();
+                *spot = group.clone();
                 // update the grouping
                 group.locations.push(Coord::new(row, col));
                 break;
@@ -223,8 +223,8 @@ fn print_groupings(groupings:&Vec<Grouping>, title: &str) {
 /// # create_empty_grid()
 /// 
 /// This function creates an empty grid of the specified dimensions, filled with the string "empty".
-fn create_empty_grid(rows:usize, cols:usize) -> Grid<String> {
+fn create_empty_grid(rows:usize, cols:usize) -> Grid<Grouping> {
     let mut empty = Grid::new(rows, cols);
-    empty.fill("empty".to_string());
+    empty.fill(Grouping::default());
     return empty;
 }//end createEmptyGrid
