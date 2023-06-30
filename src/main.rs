@@ -103,8 +103,8 @@ fn main() {
                         }//end looping over cols in city grid
                     }//end looping over rows in city grid
                     println!("Finished neighborhood generation\n");
-
-                    // TODO: Make it so that neighborhoods can be displayed
+                    // switch to district tab so user can see what happened
+                    gui.switch_tab(1);
                 },
                 _ => {
                     if val.contains(',') {
@@ -120,6 +120,8 @@ fn main() {
                             let this_nhood = city_grid.get(row_idx, col_idx).unwrap();
                             // display it, hopefully ????
                             gui.update_neighborhood_tab(this_nhood);
+                            // switch to neighborhood tab to show it to user
+                            gui.switch_tab(2);
                         }//end found a coordinate pair
                     }//end if we have a comma-separated value
                     else {println!("Unhandled message!!\n")}

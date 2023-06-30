@@ -172,6 +172,27 @@ impl GUI<'_> {
 		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
 	
+	/// # switch_tab(&mut self, tab_idx:i32)
+	pub fn switch_tab(&mut self, tab_idx:u8) {
+		match tab_idx {
+			0 => {
+				self.tabs.set_value(&self.settings_tab).expect("tabs");
+			},
+			1 => {
+				self.tabs.set_value(&self.districts_tab).expect("tabs");
+			},
+			2 => {
+				self.tabs.set_value(&self.neighborhood_tab).expect("tabs");
+			},
+			_ => {
+				// do nothing
+			}
+		}//end matching tab index
+		self.settings_tab.redraw();
+		self.districts_tab.redraw();
+		self.neighborhood_tab.redraw();
+	}//end switch_tab(&mut self, tab_idx)
+
 	/// # initialize_top_menu
 	/// 
 	/// 
