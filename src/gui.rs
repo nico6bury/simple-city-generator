@@ -5,6 +5,7 @@ use fltk::app::Sender;
 use fltk::button::Button;
 use fltk::dialog;
 use fltk::enums::Align;
+use fltk::enums::Color;
 use fltk::enums::FrameType;
 use fltk::enums::Shortcut;
 use fltk::group;
@@ -188,14 +189,19 @@ impl GUI<'_> {
 		for row_index in 0..ext_grid.rows() as i32 {
 			let mut temp_vec: Vec<Button> = Vec::new();
 			for col_index in 0..ext_grid.cols() as i32 {
-				let mut shrunk = ext_grid.get(row_index as usize, col_index as usize).unwrap().name.to_owned();
+				let this_group = ext_grid.get(row_index as usize, col_index as usize).unwrap();
+				let mut shrunk = this_group.name.to_owned();
 				if shrunk.len() > 9 {
 					shrunk = shrunk[0..9].to_string();
 				}//end if we need to shrink the name
 				// make the button, positioned correctly
-				let new_button = Button::default()
+				let mut new_button = Button::default()
 					.with_size(button_width, button_height)
 					.with_label(&shrunk);
+				// set button color based on grouping
+				let c = this_group.rgb_color;
+				new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
+				new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
 				// add the button to the list
 				temp_vec.push(new_button);
 			}//end converting each string into a button
