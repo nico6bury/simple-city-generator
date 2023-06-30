@@ -42,7 +42,6 @@ fn main() {
                         let gui_color_result = gui.get_color();
                         if gui_color_result.is_some() {
                             gui.districts.get_mut(dist_index).unwrap().rgb_color = gui_color_result.unwrap();
-                            // TODO: Redraw group display color after updating the grouping
                             gui.update_district_list_buf();
                         }//end if we got a color to use
                     }//end if we got something
