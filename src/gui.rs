@@ -5,6 +5,7 @@ use fltk::app::Sender;
 use fltk::button::Button;
 use fltk::dialog;
 use fltk::enums::Align;
+use fltk::enums::Color;
 use fltk::enums::FrameType;
 use fltk::enums::Shortcut;
 use fltk::group;
@@ -251,6 +252,13 @@ impl GUI<'_> {
 		self.main_window.show();
 	}//end show(&mut self)
 
+	/// # get_color(&self)
+	/// 
+	/// optionally returns an rgb value in the form of a 3-tuple of u8 values.
+	pub fn get_color(&self) -> Option<(u8,u8,u8)> {
+		dialog::color_chooser("Choose Color", dialog::ColorMode::Rgb)
+	}//end get_color(&self)
+
 	/// # get_new_district_name(&self)
 	/// 
 	/// Opens a dialgue box and displays it to the user, prompting them to give a new district name.
@@ -269,6 +277,13 @@ impl GUI<'_> {
 			else {return None;}
 		}//end looping until we get something valid
 	}//end get_new_district_name(&self)
+
+	/// # show_message(&self, msg)
+	/// 
+	/// displays a simple message box with the specified message
+	pub fn show_message(&self, msg:&str) {
+		dialog::message(0, 0, msg);
+	}//end show_message(&self, msg)
 
 	/// # choose_district(&self)
 	/// 
