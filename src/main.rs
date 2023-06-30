@@ -2,6 +2,7 @@ use fltk::app::App;
 use fltk_theme::ThemeType;
 use fltk_theme::WidgetTheme;
 use grid::Grid;
+use grouping::BuildingType;
 use grouping::GroupInstance;
 use gui::GUI;
 use gui::MenuChoice;
@@ -92,6 +93,11 @@ fn main() {
 
                     // display the new grid stuff
                     gui.update_grid(&city_grid);
+
+                    // TODO: debug this wip
+                    let first_nhood = city_grid.get_mut(0, 0).unwrap();
+                    generate_neighborhood(first_nhood, &mut rng);
+                    print_neighborhood(first_nhood, "title");
                 },
                 _ => {println!("Unhandled Message");}
             }//end matching message values
@@ -131,7 +137,7 @@ fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupi
             continue;
         }//end if we have an enclosed district
         // pick one of the open_coords
-        let coord_to_use = weighted_coord_rng(rng, &mut open_coords, group).to_owned();
+        let coord_to_use = weighted_coord_rng_districts(rng, &mut open_coords, group).to_owned();
         // update group name in grid
         let grid_spot = grid.get_mut(coord_to_use.row, coord_to_use.col).unwrap();
         // update grouping locations
@@ -142,7 +148,7 @@ fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupi
     return num_enclosed;
 }//end advance_group_expansion(grid, groups)
 
-/// # weighted_coord_rng
+/// # weighted_coord_rng_districts
 /// 
 /// Does some weird number manipulation to prefer lower distances in random coord picking.
 /// Uses adapted algorithm from http://stackoverflow.com/questions/1761626/weighted-random-numbers/1761646#1761646
@@ -151,7 +157,7 @@ fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupi
 /// 
 /// ## Previous Issue: Potential Panic
 /// The function works by summing up the dist_from_center of each coord. If for some reason, this sum is 0, then the function will panic, saying something about rng not working because something something range bounds. Basically it doesn't like being called with a range of "0..0". This *shouldn't* happen anymore, but if panics like that start cropping up, then take a look at this function or the dist_from_center function in grouping.rs.
-fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:&'a Grouping) -> &'a Coord  {
+fn weighted_coord_rng_districts<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:&'a Grouping) -> &'a Coord  {
     // edge case for only one coord
     if coords.len() == 1 {
         return coords.first().unwrap();
@@ -173,7 +179,7 @@ fn weighted_coord_rng<'a>(rng: & mut ThreadRng, coords:&'a Vec<Coord>, grouping:
 
     // should never make it here, but use unweighted generation if weighted doesn't work for some reason
     return coords.get(rng.gen_range(0..coords.len())).unwrap();
-}//end weighted_coord_rng
+}//end weighted_coord_rng_districts
 
 /// # prime_grid_with_groups()
 /// 
@@ -204,6 +210,78 @@ fn prime_grid_with_groups(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupin
     }//end generating something for each group
 }//end prime_grid_with_groups
 
+/// # generate_neighborhood
+/// 
+/// Generates a neighborhood grid inside nhood's sub_grid field.
+/// This method will use the rows and columns of the provided nhood object.
+/// The rng parameter is used for random number generation.
+fn generate_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
+    // save some handy reference variables for later
+    let rows = nhood.sub_grid.rows();
+    let cols = nhood.sub_grid.cols();
+    
+    // add roads to our neighborhood
+    add_roads_to_neighborhood(nhood, rng);
+
+    // figure out number of color options to use
+
+    // loop through the whole grid
+    // TODO: contineu
+}//end generate_neighborhood(nhood, rng)
+
+/// # add_roads_to_neighborhood(nhood, rng)
+/// 
+/// This function could be seen as a helper function for generate_neighborhood().
+/// It will generate roads and place them in the nhood parameter.
+fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
+    // save some handy reference variables for later
+    let rows = nhood.sub_grid.rows();
+    let cols = nhood.sub_grid.cols();
+    
+    // figure out number of roads to slam in there
+    let num_roads_low_bound = ((rows + cols) as f32 * 0.15).ceil() as usize;
+    let num_roads_upp_bound = ((rows + cols) as f32 * 0.4).ceil() as usize;
+    let num_roads_total = rng.gen_range(num_roads_low_bound..num_roads_upp_bound);
+    let num_roads_horizontal = rng.gen_range(1.min(num_roads_total / 2)..num_roads_total.min((num_roads_total as f32 * 0.7).ceil() as usize));
+    let num_roads_vertical = num_roads_total - num_roads_horizontal;
+    
+    // slap some horizontal roads in there
+    let mut roads_hor_idxs = Vec::new();
+    while roads_hor_idxs.len() < num_roads_horizontal.min(rows) {
+        let road_hor_idx = rng.gen_range(0..rows);
+        if !roads_hor_idxs.contains(&road_hor_idx) {
+            roads_hor_idxs.push(road_hor_idx);
+        }//end if we haven't already generated this index
+    }//end looping while we can fit some more horizontal roads in there
+
+    // slap some vertical roads in there
+    let mut roads_ver_idxs = Vec::new();
+    while roads_ver_idxs.len() < num_roads_vertical.min(cols) {
+        let road_ver_idx = rng.gen_range(0..cols);
+        if !roads_ver_idxs.contains(&road_ver_idx) {
+            roads_ver_idxs.push(road_ver_idx);
+        }//end if we haven't already generated this index
+    }//end looping while we can fit some more vertical roads int there
+
+    // actually edit nhood with horizontal roads
+    for row_idx in roads_hor_idxs {
+        for col_idx in 0..cols {
+            let this_building = nhood.sub_grid.get_mut(row_idx, col_idx).expect("Those indices seemed pretty valid to me... Should be in bounds and everything.");
+            // set type to road
+            this_building.build_type = BuildingType::Road;
+        }//end looping over each column on our way horizontal
+    }//end looping over each horizontal road index to add
+
+    // actually edit nhood with vertical roads
+    for col_idx in roads_ver_idxs {
+        for row_idx in 0..rows {
+            let this_building = nhood.sub_grid.get_mut(row_idx, col_idx).expect("Those indices seemed pretty valid to me... Should be in bounds and everything.");
+            // set type to road
+            this_building.build_type = BuildingType::Road;
+        }//end looping over reach row on our way vertical
+    }//end looping over each vertical road index
+}//end add_roads_to_neighborhood(nhood, rng)
+
 /// # print_grid()
 /// 
 /// This function prints the specified grid to the console for debugging purposes.
@@ -233,6 +311,19 @@ fn print_groupings(groupings:&Vec<Grouping>, title: &str) {
         println!("{}", group.to_string());
     }//end printing out each grouping
 }//end print_grouping
+
+/// # print_neighborhood(nhood, title)
+#[allow(dead_code)]
+fn print_neighborhood(nhood:&mut GroupInstance, title: &str) {
+    println!("{}",title);
+    for row in 0..nhood.sub_grid.rows() {
+        for col in 0..nhood.sub_grid.cols() {
+            print!("{}\t", nhood.sub_grid.get(row, col).unwrap().build_type);
+        }//end looping over col indices
+        print!("\n");
+    }//end looping over row indices
+    println!("\n");
+}//end print_neighborhood
 
 /// # create_empty_grid()
 /// 
