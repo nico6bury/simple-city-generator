@@ -15,7 +15,7 @@ fn main() {
     // create random number generator for whole program
     let mut rng = rand::thread_rng();
     // create our empty grid
-    let mut city_grid: Grid<String> = create_empty_grid(10, 10);
+    let mut city_grid: Grid<String>;
     // create application object
     let app = App::default();
     // set app theme
