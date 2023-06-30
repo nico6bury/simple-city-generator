@@ -186,9 +186,9 @@ impl GUI<'_> {
 		// set size of buttons
 		let button_width = get_default_grid_width() / ext_grid.cols() as i32;
 		let button_height = get_default_grid_height() / ext_grid.rows() as i32;
-		for row_index in 0..ext_grid.rows() as i32 {
+		for col_index in 0..ext_grid.cols() as i32 {
 			let mut temp_vec: Vec<Button> = Vec::new();
-			for col_index in 0..ext_grid.cols() as i32 {
+			for row_index in 0..ext_grid.rows() as i32 {
 				let this_group = ext_grid.get(row_index as usize, col_index as usize).unwrap();
 				let mut shrunk = this_group.name.to_owned();
 				if shrunk.len() > 9 {
