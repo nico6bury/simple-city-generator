@@ -50,7 +50,10 @@ fn main() {
                 "MenuChoice::AddDistrict" => {
                     let new_dist_name = gui.get_new_district_name();
                     if new_dist_name.is_some() {
-                        let new_district = Grouping::new(new_dist_name.unwrap());
+                        let mut new_district = Grouping::new(new_dist_name.unwrap());
+                        let color_options = gen_nhood_colors(&mut rng, 42);
+                        let color_option = color_options.get(rng.gen_range(0..color_options.len())).unwrap();
+                        new_district.rgb_color = (color_option.0, color_option.1, color_option.2);
                         println!("Adding district {}", new_district.name);
                         gui.districts.push(new_district);
                         gui.update_district_list_buf();
