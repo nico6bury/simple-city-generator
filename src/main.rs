@@ -250,10 +250,10 @@ fn generate_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
     let cols = nhood.sub_grid.cols();
     
     // add roads to our neighborhood
-    let num_colors = add_roads_to_neighborhood(nhood, rng);
+    let _num_colors = add_roads_to_neighborhood(nhood, rng);
 
     // figure out number of color options to use
-    let color_options = gen_nhood_colors(rng, num_colors);
+    let color_options = gen_nhood_colors(rng, 42);
 
     // loop through the whole grid
     for row in 0..rows {
@@ -284,8 +284,8 @@ fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) -> us
     let cols = nhood.sub_grid.cols();
     
     // figure out number of roads to slam in there
-    let num_roads_low_bound = ((rows + cols) as f32 * 0.2).sqrt().ceil() as usize;
-    let num_roads_upp_bound = ((rows + cols) as f32 * 0.6).sqrt().ceil() as usize;
+    let num_roads_low_bound = ((rows + cols) as f32 * 1.2).sqrt().ceil() as usize;
+    let num_roads_upp_bound = ((rows + cols) as f32 * 2.2).sqrt().ceil() as usize;
     let num_roads_total = rng.gen_range(num_roads_low_bound..num_roads_upp_bound);
     let num_roads_horizontal = rng.gen_range(1.min(num_roads_total / 2)..num_roads_total.min((num_roads_total as f32 * 0.7).ceil() as usize));
     let num_roads_vertical = num_roads_total - num_roads_horizontal;
