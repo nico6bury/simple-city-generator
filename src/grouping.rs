@@ -242,7 +242,29 @@ pub enum BuildingType {
 	/// house where people live
 	Residence,
 	/// place where people go to buy things
-	Shop,
+	Shop,// common
+	School,
+	Museum,
+	Hospital,
+	Pharmacy,// less rare
+	Park,// common
+	Arcade,
+	Pound,
+	GovOffice,// rare
+	Cafe,// rare
+	CorpOffice,//less rare
+	ChainStore,//less rare
+	Police,
+	Market,//less rare
+	Temple,//less rare
+	Church,//less rare
+	Shrine,//less rare
+	Spa,
+	Mansion,//less rare
+	Landfill,
+	Factory,
+	Prison,
+	FireDept,
 }//end enum BuildingType
 
 impl Default for BuildingType {
@@ -258,7 +280,29 @@ impl Display for BuildingType {
 			BuildingType::Road => write!(f, "Road"),
 			BuildingType::Residence => write!(f, "House"),
 			BuildingType::Shop => write!(f, "Shop"),
-			_ => write!(f, "Building")
+            BuildingType::School => write!(f, "School"),
+            BuildingType::Museum => write!(f, "Museum"),
+            BuildingType::Hospital => write!(f, "Hospital"),
+            BuildingType::Pharmacy => write!(f, "Pharmacy"),
+            BuildingType::Park => write!(f, "Park"),
+            BuildingType::Arcade => write!(f, "Arcade"),
+            BuildingType::Pound => write!(f, "Pound"),
+            BuildingType::GovOffice => write!(f, "Gov Office"),
+            BuildingType::Cafe => write!(f, "Cafe"),
+            BuildingType::CorpOffice => write!(f, "Corp Office"),
+            BuildingType::ChainStore => write!(f, "Chain Store"),
+            BuildingType::Police => write!(f, "Police"),
+            BuildingType::Market => write!(f, "Market"),
+            BuildingType::Temple => write!(f, "Temple"),
+            BuildingType::Church => write!(f, "Church"),
+            BuildingType::Shrine => write!(f, "Shrine"),
+            BuildingType::Spa => write!(f, "Spa"),
+            BuildingType::Mansion => write!(f, "Mansion"),
+            BuildingType::Landfill => write!(f, "Landfill"),
+            BuildingType::Factory => write!(f, "Factory"),
+            BuildingType::Prison => write!(f, "Prison"),
+            BuildingType::FireDept => write!(f, "FireDept"),
+			//_ => write!(f, "Building")
 		}
     }//end fmt
 }//end impl Display for BuildingType
