@@ -1,11 +1,8 @@
 use fltk::app::App;
-// use fltk_theme::ThemeType;
-// use fltk_theme::WidgetTheme;
 use grid::Grid;
 use grouping::BuildingType;
 use grouping::GroupInstance;
 use gui::GUI;
-use gui::MenuChoice;
 use rand::Rng;
 mod grouping;
 use grouping::Coord;
@@ -20,9 +17,6 @@ fn main() {
     let mut city_grid: Grid<GroupInstance> = create_empty_grid(10, 10);
     // create application object
     let app = App::default();
-    // set app theme
-    // let w_theme = WidgetTheme::new(ThemeType::AquaClassic);
-    // w_theme.apply();
     
     // set up gui
     let mut gui = GUI::default(&app);

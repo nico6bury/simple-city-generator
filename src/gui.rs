@@ -26,7 +26,6 @@ use fltk::text::TextDisplay;
 use fltk::window::Window;
 use grid::Grid;
 
-use crate::grouping::Coord;
 use crate::grouping::GroupInstance;
 use crate::grouping::Grouping;
 
