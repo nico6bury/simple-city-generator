@@ -169,6 +169,8 @@ impl GUI<'_> {
 			.with_size(self.tabs.width(), self.tabs.height())
 			.with_label("Neighborhood");
 		self.neighborhood_tab.end();
+		self.neighborhood_flex = FlexGrid::default();
+		self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
 		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
 	
@@ -232,7 +234,7 @@ impl GUI<'_> {
 	/// 
 	/// Updates the grid view, and also initializes
 	pub fn update_grid(&mut self, ext_grid:&Grid<GroupInstance>) {
-		self.grid_flex = FlexGrid::default();
+		//self.grid_flex = FlexGrid::default();
 		// clear previous nonsense
 		if self.grid_flex.outer_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
@@ -283,8 +285,12 @@ impl GUI<'_> {
 		if self.districts_tab.children() < 1 {
 			self.districts_tab.add(&self.grid_flex.outer_flex);
 		}//end to tab if not there already
-		self.grid_flex.outer_flex.redraw();
+		else {
+			self.districts_tab.add(&self.grid_flex.outer_flex);
+			self.districts_tab.redraw();
+		}
 		self.grid_flex.outer_flex.recalc();
+		self.grid_flex.outer_flex.redraw();
 	}//end initialize_grid
 
 	/// # initialize_setting(self)
@@ -470,7 +476,7 @@ impl GUI<'_> {
 	/// shows a new window with a colorful display of the specified neighborhood.
 	pub fn update_neighborhood_tab(&mut self,nhood:&GroupInstance) {
 		// try and re-initialize neighborhood_flex
-		self.neighborhood_flex = FlexGrid::default();
+		// self.neighborhood_flex = FlexGrid::default();
 		// clear previous nonsense
 		if self.neighborhood_flex.outer_flex.children() > 0 {
 			self.neighborhood_flex.clear_inner_flexes();
