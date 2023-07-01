@@ -284,14 +284,14 @@ fn add_roads_to_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) -> us
     let cols = nhood.sub_grid.cols();
     
     // figure out number of roads to slam in there
-    let num_roads_low_bound = ((rows + cols) as f32 * 0.15).ceil() as usize;
-    let num_roads_upp_bound = ((rows + cols) as f32 * 0.4).ceil() as usize;
+    let num_roads_low_bound = ((rows + cols) as f32 * 0.2).sqrt().ceil() as usize;
+    let num_roads_upp_bound = ((rows + cols) as f32 * 0.6).sqrt().ceil() as usize;
     let num_roads_total = rng.gen_range(num_roads_low_bound..num_roads_upp_bound);
     let num_roads_horizontal = rng.gen_range(1.min(num_roads_total / 2)..num_roads_total.min((num_roads_total as f32 * 0.7).ceil() as usize));
     let num_roads_vertical = num_roads_total - num_roads_horizontal;
 
     // determine number of colors from roads
-    let num_colors = 3.max(num_roads_upp_bound - num_roads_total);
+    let num_colors = 3.max((num_roads_upp_bound - num_roads_total) * 2);
     
     // slap some horizontal roads in there
     let mut roads_hor_idxs = Vec::new();
@@ -346,7 +346,7 @@ fn gen_nhood_colors(rng: & mut ThreadRng, num_colors:usize) -> Vec<(u8, u8, u8)>
     // get our vector of colors
     let mut color_options:Vec<(u8,u8,u8)> = Vec::new();
 
-    let px_num = 42.max(num_colors * 2);
+    let px_num = 42.min(num_colors * 2);
     let px_interval = 255 / px_num;
     while color_options.len() < num_colors {
         // generate an rgb value somewhat randomly
@@ -370,11 +370,34 @@ fn gen_nhood_colors(rng: & mut ThreadRng, num_colors:usize) -> Vec<(u8, u8, u8)>
 /// 
 /// returns a tuple containing (BuildingType, rgb color as (u8,u8,u8))
 fn gen_build_type_color(rng:&mut ThreadRng, colors:&Vec<(u8,u8,u8)>) -> (BuildingType, (u8, u8, u8)) {
-    let build_type_index = rng.gen_range(0..10);
+    let build_type_index = rng.gen_range(0..112);
     let build_type = match build_type_index {
         0 => BuildingType::Road,
-        1..=5 => BuildingType::Residence,
-        6..=8 => BuildingType::Shop,
+        1 => BuildingType::FireDept,
+        2 => BuildingType::Prison,
+        3..=5 => BuildingType::Factory,
+        6 => BuildingType::Landfill,
+        7..=10 => BuildingType::Mansion,
+        11..=12 => BuildingType::Spa,
+        13..=15 => BuildingType::Shrine,
+        16..=18 => BuildingType::Church,
+        19..=21 => BuildingType::Temple,
+        22..=24 => BuildingType::Market,
+        25 => BuildingType::Police,
+        26..=29 => BuildingType::ChainStore,
+        30..=33 =>BuildingType::CorpOffice,
+        34..=35 => BuildingType::Cafe,
+        36..=37 => BuildingType::GovOffice,
+        38 => BuildingType::Pound,
+        39..=40 => BuildingType::Arcade,
+        41..=50 => BuildingType::Park,
+        51..=53 => BuildingType::Pharmacy,
+        54 => BuildingType::Hospital,
+        55 => BuildingType::Museum,
+        56..=57 => BuildingType::School,
+        58..=70 => BuildingType::Shop,
+        71..=110 => BuildingType::Residence,
+        111 => BuildingType::Road,
         _ => BuildingType::Empty,
     };
     let color = colors.get(rng.gen_range(0..colors.len())).expect("Proper indexing").to_owned();
