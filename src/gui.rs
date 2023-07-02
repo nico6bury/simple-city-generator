@@ -87,6 +87,8 @@ fn get_default_menu_height() -> i32 {20}
 fn get_default_tab_padding() -> i32 {20}
 fn get_default_grid_width() -> i32 {get_default_win_width()}
 fn get_default_grid_height() -> i32 {get_default_win_height()-get_default_menu_height() - get_default_tab_padding()}
+fn get_max_grid_button_width() -> i32 {30}
+fn get_max_grid_button_height() -> i32 {15}
 
 impl GUI<'_> {
 	/// # default()
@@ -244,6 +246,9 @@ impl GUI<'_> {
 		// set size of buttons
 		let button_width = get_default_grid_width() / ext_grid.cols() as i32;
 		let button_height = get_default_grid_height() / ext_grid.rows() as i32;
+		let show_label = button_width > get_max_grid_button_width() && button_height > get_max_grid_button_height();
+		// print button size for debugging purposes
+		println!("district button sizes w:{}\th:{}\tshow label:{}", button_width, button_height, show_label);
 		// start looping over everything
 		for row_index in 0..button_grid.rows() {
 			// let mut temp_vec: Vec<Button> = Vec::new();
@@ -259,9 +264,12 @@ impl GUI<'_> {
 					shrunk = this_group.group.as_ref().unwrap().name.clone();
 				}//end if the instance is categorized
 				else { shrunk = "empty".to_string(); }
-				if shrunk.len() > 9 {
-					shrunk = shrunk[0..9].to_string();
-				}//end if we need to shrink the name
+				if show_label {
+					if shrunk.len() > 9 {
+						shrunk = shrunk[0..9].to_string();
+					}//end if we need to shrink the name
+				}//end if we should show the label at al
+				else { shrunk = "".to_string(); }
 
 				// make the button, positioned correctly
 				let mut new_button = Button::default()
@@ -498,13 +506,23 @@ impl GUI<'_> {
 		let mut button_grid = Grid::new(nhood.sub_grid.rows(), nhood.sub_grid.cols());
 		let button_width = get_default_grid_width() / button_grid.cols() as i32;
 		let button_height = get_default_grid_height() / button_grid.rows() as i32;
+		// don't show text if button is too small
+		let show_label = button_width > get_max_grid_button_width() && button_height > get_max_grid_button_height();
+		// print button size for debugging purposes
+		println!("neighborhood button sizes w:{}\th:{}\tshow label:{}", button_width, button_height, show_label);
+		// loop through and build the grid
 		for row_idx in 0..button_grid.rows() {
 			for col_idx in 0..button_grid.cols() {
 				let this_building = nhood.sub_grid.get(row_idx, col_idx).unwrap();
 				let mut this_button = Button::default()
-					.with_size(button_width, button_height)
-					.with_label(format!("{}",this_building.build_type).as_str());
+					.with_size(button_width, button_height);
+				// only add label if button big enough
+				if show_label {
+					this_button.set_label(format!("{}",this_building.build_type).as_str())
+				}//end if we have room to show the label
+				// set color based on building
 				this_button.set_color(Color::from_rgb(this_building.rgb_color.0, this_building.rgb_color.1, this_building.rgb_color.2));
+				// TODO: set label color to negative of button color
 				// update spot in button grid using through reference
 				let this_spot = button_grid.get_mut(row_idx, col_idx).unwrap();
 				*this_spot = this_button;
