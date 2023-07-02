@@ -54,7 +54,7 @@ pub struct GUI<'a> {
 	/// the menu bar at the top
 	pub top_menu:SysMenuBar,
 	/// the struct handling the 2d array of buttons for district representation
-	pub grid_buttons:Vec<Vec<Button>>,
+	pub grid_buttons:Grid<Button>,
 	/// the struct handling the grid of buttons for districts
 	pub grid_flex: FlexGrid,
 	/// the struct handling the grid of buttons for neighborhoods
@@ -100,7 +100,7 @@ impl GUI<'_> {
 			menu_msg_sender: s1,
 			menu_msg_receiver: r1,
 			top_menu: SysMenuBar::default(),
-			grid_buttons: Vec::new(),
+			grid_buttons: Grid::new(0,0),
 			grid_flex: FlexGrid::default(),
 			neighborhood_flex: FlexGrid::default(),
 			tabs: Tabs::default(),
@@ -239,15 +239,21 @@ impl GUI<'_> {
 		if self.grid_flex.outer_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
-		// create a 2d array of buttons
-		let mut button_grid: Vec<Vec<Button>> = Vec::new();
+		// create grid of buttons
+		let mut button_grid: Grid<Button> = Grid::new(ext_grid.rows(), ext_grid.cols());
 		// set size of buttons
 		let button_width = get_default_grid_width() / ext_grid.cols() as i32;
 		let button_height = get_default_grid_height() / ext_grid.rows() as i32;
-		for col_index in 0..ext_grid.cols() as i32 {
-			let mut temp_vec: Vec<Button> = Vec::new();
-			for row_index in 0..ext_grid.rows() as i32 {
+		// start looping over everything
+		for row_index in 0..button_grid.rows() {
+			// let mut temp_vec: Vec<Button> = Vec::new();
+			for col_index in 0..button_grid.cols() {
+				// reference variable for this group instance
 				let this_group = ext_grid.get(row_index as usize, col_index as usize).unwrap();
+				// get mutable reference for spot in grid
+				let this_button_spot = button_grid.get_mut(row_index, col_index).unwrap();
+
+				// figure out name limits
 				let mut shrunk;
 				if this_group.group.is_some() {
 					shrunk = this_group.group.as_ref().unwrap().name.clone();
@@ -256,22 +262,25 @@ impl GUI<'_> {
 				if shrunk.len() > 9 {
 					shrunk = shrunk[0..9].to_string();
 				}//end if we need to shrink the name
+
 				// make the button, positioned correctly
 				let mut new_button = Button::default()
 					.with_size(button_width, button_height)
 					.with_label(&shrunk);
+
 				// set button color based on grouping
 				if this_group.group.is_some() {
 					let c = this_group.group.as_ref().unwrap().rgb_color;
 					// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
 					new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
 				}//end if this grouped instance is actually grouped
+				
 				// add click event/emission
 				new_button.emit(self.menu_msg_sender.clone(), format!("{},{}",this_group.coord.unwrap().row,this_group.coord.unwrap().col));
-				// add the button to the list
-				temp_vec.push(new_button);
+
+				// update mutable refernce with our new button
+				*this_button_spot = new_button;
 			}//end converting each string into a button
-			button_grid.push(temp_vec);
 		}//end going through each row
 
 		// save our hard-earned button grid in our struct
@@ -485,28 +494,28 @@ impl GUI<'_> {
 		if self.neighborhood_flex.outer_flex.children() > 0 {
 			self.neighborhood_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
-		// create and fill a 2d vector of buttons
-		let mut buttons_2d = Vec::new();
-		let button_width = get_default_grid_width() / nhood.sub_grid.cols() as i32;
-		let button_height = get_default_grid_height() / nhood.sub_grid.rows() as i32;
-		for row_idx in 0..nhood.sub_grid.rows() {
-			let mut this_row = Vec::new();
-			for col_idx in 0..nhood.sub_grid.cols() {
+		// create and fill a grid of buttons
+		let mut button_grid = Grid::new(nhood.sub_grid.rows(), nhood.sub_grid.cols());
+		let button_width = get_default_grid_width() / button_grid.cols() as i32;
+		let button_height = get_default_grid_height() / button_grid.rows() as i32;
+		for row_idx in 0..button_grid.rows() {
+			for col_idx in 0..button_grid.cols() {
 				let this_building = nhood.sub_grid.get(row_idx, col_idx).unwrap();
 				let mut this_button = Button::default()
 					.with_size(button_width, button_height)
 					.with_label(format!("{}",this_building.build_type).as_str());
 				this_button.set_color(Color::from_rgb(this_building.rgb_color.0, this_building.rgb_color.1, this_building.rgb_color.2));
-				this_row.push(this_button);
+				// update spot in button grid using through reference
+				let this_spot = button_grid.get_mut(row_idx, col_idx).unwrap();
+				*this_spot = this_button;
 			}//end looping through columns of grid
-			buttons_2d.push(this_row);
 		}//end looping through rows of grid
 		// initialize our flex grid's size
 		self.neighborhood_flex.initialize_flex(nhood.sub_grid.rows(), nhood.sub_grid.cols());
 		// fill the flex_grid
-		self.neighborhood_flex.fill_flex(&buttons_2d);
+		self.neighborhood_flex.fill_flex(&button_grid);
 		// throw our buttons in the flex
-		self.neighborhood_flex.buttons = buttons_2d;
+		self.neighborhood_flex.buttons = button_grid;
 		// actually try and make things show up
 		if self.neighborhood_tab.children() < 1 {
 			self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
@@ -556,7 +565,7 @@ impl GUI<'_> {
 pub struct FlexGrid {
 	/// # buttons
 	/// The 2d array of buttons filling the grid
-	pub buttons: Vec<Vec<Button>>,
+	pub buttons: Grid<Button>,
 	/// # outer_flex
 	/// The flex containing the flex containing the buttons
 	pub outer_flex: Flex,
@@ -571,7 +580,7 @@ impl FlexGrid {
 	/// constructs the empty FlexGrid
 	pub fn default() -> FlexGrid {
 		FlexGrid {
-			buttons:Vec::new(),
+			buttons:Grid::new(0,0),
 			outer_flex:Flex::new(0, get_default_menu_height() + get_default_tab_padding(), get_default_grid_width(), get_default_grid_height(), None),
 			inner_flexes:Vec::new(),
 		}//end struct construction
@@ -611,15 +620,17 @@ impl FlexGrid {
 
 	/// # fill_flex(self, buttons)
 	/// fills up the flex with buttons such that the buttons will show up in the flex looking like a grid
-	pub fn fill_flex(&mut self, buttons:&Vec<Vec<Button>>) {
-		for row_index in 0..buttons.len() {
-			let this_inner_flex = self.inner_flexes.get_mut(row_index).unwrap();
-			let this_button_row = buttons.get(row_index).unwrap();
-			for button in this_button_row {
+	/// 
+	/// It should be noted that this function should expect to receive things in the order of col, rows
+	pub fn fill_flex(&mut self, buttons:&Grid<Button>) {
+		for row_idx in 0..buttons.rows() {
+			let this_inner_flex = self.inner_flexes.get_mut(row_idx).unwrap();
+			// loop over the current row of buttons
+			for button in buttons.iter_row(row_idx) {
 				if !button.was_deleted() {
 					this_inner_flex.add(button);
 				}//end if button wasn't deleted
-				else {println!("button was deleted, row {}", row_index);}
+				else {println!("button was deleted, row {}", row_idx);}
 			}//end adding each button in row to inner flex
 		}//end looping over each inner flex and adding buttons
 	}//end fill_flex
