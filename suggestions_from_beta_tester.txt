@@ -1,0 +1,25 @@
+Ideas for City Generator
+[ ] have the district list also display the district's color, instead of RGB values
+[ ] progress counter/bar for generation
+[X] random color generator for new districts
+[ ] Preset aesthetic color palates https://www.color-hex.com/color-palettes/popular.php
+[ ] District name generator
+[ ] Generate neighborhoods when you click on a district ?
+[ ] View multiple neighborhoods at a time
+[ ] better text display for large grid / Hide text option 
+[ ] color key on grid page
+[ ] select multiple districts at once on the district list 
+[ ] print the city generation
+[ ] save function to save districts/colors
+[ ] Load function for saved files
+[ ] add multiple districts at once
+[ ] district counter
+[ ] change button style so that it doesn't look like a grid so much
+[ ] zoom in/out on the grid view
+[X] potential neighborhood buildings: restaurants, bowling alley, park, forest, temple, hospital, etc
+[ ] have each type of neighborhood building as the same color 
+
+fixes for City Generator
+[ ] better handle multiple districts with same name
+[ ] fix empty input for district name
+[ ] the RGB color picker does weird stuff, but when inputting RGB values into the hex code option they work (edited)
