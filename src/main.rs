@@ -1,8 +1,6 @@
 use fltk::app::App;
-use fltk_theme::ColorTheme;
 use fltk_theme::SchemeType;
 use fltk_theme::WidgetScheme;
-use fltk_theme::color_themes;
 use grid::Grid;
 use grouping::BuildingType;
 use grouping::GroupInstance;
@@ -24,8 +22,6 @@ fn main() {
     // create theme objects
     let widget_scheme = WidgetScheme::new(SchemeType::Fluent);
     widget_scheme.apply();
-    let color_theme = ColorTheme::new(color_themes::DARK_THEME);
-    color_theme.apply();
     
     // set up gui
     let mut gui = GUI::default(&app);

@@ -89,6 +89,7 @@ fn get_default_grid_width() -> i32 {get_default_win_width()}
 fn get_default_grid_height() -> i32 {get_default_win_height()-get_default_menu_height() - get_default_tab_padding()}
 fn get_max_grid_button_width() -> i32 {30}
 fn get_max_grid_button_height() -> i32 {15}
+fn get_max_luminance_for_white_label() -> f32 {100.0}
 
 impl GUI<'_> {
 	/// # default()
@@ -281,6 +282,12 @@ impl GUI<'_> {
 					let c = this_group.group.as_ref().unwrap().rgb_color;
 					// new_button.set_label_color(Color::from_rgb(c.0, c.1, c.2));
 					new_button.set_color(Color::from_rgb(c.0, c.1, c.2));
+					// do some calculations to determine if we should change label color
+					let luminance = 0.299*c.0 as f32 + 0.587*c.1 as f32 + 0.114*c.2 as f32;
+					if luminance > get_max_luminance_for_white_label() {
+						new_button.set_label_color(Color::Black);
+					}//end if label color should be black
+					else { new_button.set_label_color(Color::White); }
 				}//end if this grouped instance is actually grouped
 				
 				// add click event/emission
@@ -520,8 +527,16 @@ impl GUI<'_> {
 				if show_label {
 					this_button.set_label(format!("{}",this_building.build_type).as_str())
 				}//end if we have room to show the label
+				// start some color calculations
+				let c = (this_building.rgb_color.0, this_building.rgb_color.1, this_building.rgb_color.2);
 				// set color based on building
-				this_button.set_color(Color::from_rgb(this_building.rgb_color.0, this_building.rgb_color.1, this_building.rgb_color.2));
+				this_button.set_color(Color::from_rgb(c.0, c.1, c.2));
+				// do some calculations to determine if we should change label color
+				let luminance = 0.299*c.0 as f32 + 0.587*c.1 as f32 + 0.114*c.2 as f32;
+				if luminance > get_max_luminance_for_white_label() {
+					this_button.set_label_color(Color::Black);
+				}//end if label color should be black
+				else { this_button.set_label_color(Color::White); }
 				// TODO: set label color to negative of button color
 				// update spot in button grid using through reference
 				let this_spot = button_grid.get_mut(row_idx, col_idx).unwrap();
