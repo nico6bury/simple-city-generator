@@ -618,7 +618,7 @@ impl FlexGrid {
 	/// Sets up the flex-boxes like a grid
 	pub fn initialize_flex(&mut self, rows:usize, cols:usize) {
 		// set outer flex to be have rows of elements
-		self.outer_flex.set_type(group::FlexType::Row);
+		self.outer_flex.set_type(group::FlexType::Column);
 		self.outer_flex.set_align(Align::LeftTop);
 		for _row_index in 0..rows {
 			let inner_flex_x = 0;//self.outer_flex.x();
@@ -626,7 +626,7 @@ impl FlexGrid {
 			let inner_flex_w = get_default_grid_width() / cols as i32;
 			let inner_flex_h = get_default_grid_height() / rows as i32;
 			let mut inner_flex = Flex::new(inner_flex_x,inner_flex_y,inner_flex_w,inner_flex_h,None);
-			inner_flex.set_type(group::FlexType::Column);
+			inner_flex.set_type(group::FlexType::Row);
 			// make flex show up
 			self.outer_flex.add(&inner_flex);
 			// save flex to struct
