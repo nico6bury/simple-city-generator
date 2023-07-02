@@ -7,15 +7,15 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug executable 'cis_536_city_generator'",
+			"name": "Debug executable 'city_generator'",
 			"cargo": {
 				"args": [
 					"build",
-					"--bin=cis_536_city_generator",
-					"--package=cis_536_city_generator"
+					"--bin=city_generator",
+					"--package=city_generator"
 				],
 				"filter": {
-					"name": "cis_536_city_generator",
+					"name": "city_generator",
 					"kind": "bin"
 				}
 			},
