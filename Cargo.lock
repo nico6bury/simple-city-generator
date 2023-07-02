@@ -25,6 +25,7 @@ name = "city_generator"
 version = "0.1.0"
 dependencies = [
  "fltk",
+ "fltk-theme",
  "grid",
  "rand",
 ]
@@ -77,6 +78,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "285dfe936cfc62507fbe673428da5057d4c06377f0f75e74a59ed561f5d33d18"
 dependencies = [
  "cmake",
+]
+
+[[package]]
+name = "fltk-theme"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e368f9b1216b5bdd37f4a4dacaba61b566b04f823e1105d286cf7a89b0136d54"
+dependencies = [
+ "fltk",
 ]
 
 [[package]]
