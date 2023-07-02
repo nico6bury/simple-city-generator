@@ -24,6 +24,7 @@ use fltk::prelude::WidgetExt;
 use fltk::text::TextBuffer;
 use fltk::text::TextDisplay;
 use fltk::window::Window;
+use fltk_theme::widget_themes;
 use grid::Grid;
 
 use crate::grouping::GroupInstance;
@@ -326,16 +327,19 @@ impl GUI<'_> {
 			.with_pos(50, 100)
 			.with_label("Set Color...");
 		set_color_button.emit(self.menu_msg_sender.clone(), "MenuChoice::SetColor".to_string());
+		set_color_button.set_frame(widget_themes::OS_HOVERED_UP_BOX);
 		let mut add_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&set_color_button, 10)
 			.with_label("Add District...");
 		add_district_button.emit(self.menu_msg_sender.clone(), "MenuChoice::AddDistrict".to_string());
+		add_district_button.set_frame(widget_themes::OS_HOVERED_UP_BOX);
 		let mut remove_district_button = Button::default()
 			.with_size(130, 30)
 			.below_of(&add_district_button, 10)
 			.with_label("Remove District...");
 		remove_district_button.emit(self.menu_msg_sender.clone(), "MenuChoice::RemoveDistrict".to_string());
+		remove_district_button.set_frame(widget_themes::OS_HOVERED_UP_BOX);
 
 		// button for generating districts
 		let mut gen_districts_button = Button::default()
@@ -343,6 +347,7 @@ impl GUI<'_> {
 			.below_of(&remove_district_button, 50)
 			.with_label("Generate Districts");
 		gen_districts_button.emit(self.menu_msg_sender.clone(), "MenuChoice::GenerateDistricts".to_string());
+		gen_districts_button.set_frame(widget_themes::OS_HOVERED_UP_BOX);
 
 		// scrollable text display for showing districts
 		let mut dist_list_disp = TextDisplay::default()
