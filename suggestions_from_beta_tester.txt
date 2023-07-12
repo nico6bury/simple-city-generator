@@ -4,9 +4,9 @@ Ideas for City Generator
 [X] random color generator for new districts
 [ ] Preset aesthetic color palates https://www.color-hex.com/color-palettes/popular.php
 [ ] District name generator
-[ ] Generate neighborhoods when you click on a district ?
+[X] Generate neighborhoods when you click on a district ?
 [ ] View multiple neighborhoods at a time
-[ ] better text display for large grid / Hide text option 
+[X] better text display for large grid / Hide text option 
 [ ] color key on grid page
 [ ] select multiple districts at once on the district list 
 [ ] print the city generation
@@ -14,7 +14,7 @@ Ideas for City Generator
 [ ] Load function for saved files
 [ ] add multiple districts at once
 [ ] district counter
-[ ] change button style so that it doesn't look like a grid so much
+[X] change button style so that it doesn't look like a grid so much
 [ ] zoom in/out on the grid view
 [X] potential neighborhood buildings: restaurants, bowling alley, park, forest, temple, hospital, etc
 [X] have each type of neighborhood building as the same color 
