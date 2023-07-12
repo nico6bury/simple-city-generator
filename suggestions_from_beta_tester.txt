@@ -17,7 +17,7 @@ Ideas for City Generator
 [ ] change button style so that it doesn't look like a grid so much
 [ ] zoom in/out on the grid view
 [X] potential neighborhood buildings: restaurants, bowling alley, park, forest, temple, hospital, etc
-[ ] have each type of neighborhood building as the same color 
+[X] have each type of neighborhood building as the same color 
 
 fixes for City Generator
 [ ] better handle multiple districts with same name

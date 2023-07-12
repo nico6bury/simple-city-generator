@@ -2,6 +2,7 @@ use fltk::app::App;
 use fltk_theme::SchemeType;
 use fltk_theme::WidgetScheme;
 use grid::Grid;
+use grouping::Building;
 use grouping::BuildingType;
 use grouping::GroupInstance;
 use gui::GUI;
@@ -264,12 +265,54 @@ fn generate_neighborhood(nhood:&mut GroupInstance, rng:&mut ThreadRng) {
             if this_build.build_type.eq(&BuildingType::Road) {continue;}
 
             // generate new type and color for building
-            let (build_type, color) = gen_build_type_color(rng, &color_options);
+            let (build_type, _color) = gen_build_type_color(rng, &color_options);
             this_build.build_type = build_type;
-            this_build.rgb_color = color;
+            // use alternative category-based color picking
+            color_code_building(this_build, &color_options);
+            //this_build.rgb_color = color;
         }//end looping through columns
     }//end looping through rows
 }//end generate_neighborhood(nhood, rng)
+
+/// # color_code_building(building, color_options)
+/// 
+/// Assuming you give the function the same vector, it will consistently give buildings of the same building type the same color, as chosen from color_options.  
+/// 
+/// ## Panic Condition
+/// This function will panic if the length of color_options is less than the number of possible variants for BuildingType.
+/// 
+/// ## Return
+/// There is no return for this method. Instead, the rgb_color field of building is set manually within this method.
+fn color_code_building(building: &mut Building, color_options: &Vec<(u8,u8,u8)>) {
+    match building.build_type {
+        BuildingType::Empty => building.rgb_color = (0,0,0),
+        BuildingType::Road => building.rgb_color = (55,55,55),
+        BuildingType::Residence => building.rgb_color = color_options.get(0).unwrap().to_owned(),
+        BuildingType::Shop => building.rgb_color = color_options.get(1).unwrap().to_owned(),
+        BuildingType::School => building.rgb_color = color_options.get(2).unwrap().to_owned(),
+        BuildingType::Museum => building.rgb_color = color_options.get(3).unwrap().to_owned(),
+        BuildingType::Hospital => building.rgb_color = color_options.get(4).unwrap().to_owned(),
+        BuildingType::Pharmacy => building.rgb_color = color_options.get(5).unwrap().to_owned(),
+        BuildingType::Park => building.rgb_color = color_options.get(6).unwrap().to_owned(),
+        BuildingType::Arcade => building.rgb_color = color_options.get(7).unwrap().to_owned(),
+        BuildingType::Pound => building.rgb_color = color_options.get(8).unwrap().to_owned(),
+        BuildingType::GovOffice => building.rgb_color = color_options.get(9).unwrap().to_owned(),
+        BuildingType::Cafe => building.rgb_color = color_options.get(10).unwrap().to_owned(),
+        BuildingType::CorpOffice => building.rgb_color = color_options.get(11).unwrap().to_owned(),
+        BuildingType::ChainStore => building.rgb_color = color_options.get(12).unwrap().to_owned(),
+        BuildingType::Police => building.rgb_color = color_options.get(13).unwrap().to_owned(),
+        BuildingType::Market => building.rgb_color = color_options.get(14).unwrap().to_owned(),
+        BuildingType::Temple => building.rgb_color = color_options.get(15).unwrap().to_owned(),
+        BuildingType::Church => building.rgb_color = color_options.get(16).unwrap().to_owned(),
+        BuildingType::Shrine => building.rgb_color = color_options.get(17).unwrap().to_owned(),
+        BuildingType::Spa => building.rgb_color = color_options.get(18).unwrap().to_owned(),
+        BuildingType::Mansion => building.rgb_color = color_options.get(19).unwrap().to_owned(),
+        BuildingType::Landfill => building.rgb_color = color_options.get(20).unwrap().to_owned(),
+        BuildingType::Factory => building.rgb_color = color_options.get(21).unwrap().to_owned(),
+        BuildingType::Prison => building.rgb_color = color_options.get(22).unwrap().to_owned(),
+        BuildingType::FireDept => building.rgb_color = color_options.get(23).unwrap().to_owned(),
+    }//end matching build_type to a color
+}//end color_code_neighborhood(building, color_options)
 
 /// # add_roads_to_neighborhood(nhood, rng)
 /// 
