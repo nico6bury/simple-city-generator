@@ -89,7 +89,7 @@ fn main() {
                     println!("\nStarting grid generation");
                     while !all_enclosed {
                         let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
-                        println!("{} groups are fully enclosed", &num_enclosed);
+                        //println!("{} groups are fully enclosed", &num_enclosed);
                         all_enclosed = num_enclosed.eq(&gui.districts.len());
                     }//end looping while some groupings are still able to expand
                     println!("\nFinished generating grid");
