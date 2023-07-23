@@ -23,6 +23,7 @@ use fltk::prelude::WidgetBase;
 use fltk::prelude::WidgetExt;
 use fltk::text::TextBuffer;
 use fltk::text::TextDisplay;
+use fltk::widget_extends;
 use fltk::window::Window;
 use fltk_theme::widget_themes;
 use grid::Grid;
@@ -612,10 +613,12 @@ impl FlexGrid {
 	/// 
 	/// constructs the empty FlexGrid
 	pub fn default() -> FlexGrid {
+		let new_outer_flex = Flex::new(0, get_default_menu_height() + get_default_tab_padding(), get_default_grid_width(), get_default_grid_height(), None);
+		new_outer_flex.end();
 		FlexGrid {
-			buttons:Grid::new(0,0),
-			outer_flex:Flex::new(0, get_default_menu_height() + get_default_tab_padding(), get_default_grid_width(), get_default_grid_height(), None),
-			inner_flexes:Vec::new(),
+			buttons: Grid::new(0,0),
+			outer_flex: new_outer_flex,
+			inner_flexes: Vec::new(),
 		}//end struct construction
 	}//end new()
 
@@ -665,6 +668,10 @@ impl FlexGrid {
 				}//end if button wasn't deleted
 				else {println!("button was deleted, row {}", row_idx);}
 			}//end adding each button in row to inner flex
+			this_inner_flex.end();
 		}//end looping over each inner flex and adding buttons
+		self.outer_flex.end();
 	}//end fill_flex
 }//end impl for FlexGrid
+
+widget_extends!(FlexGrid, Flex, outer_flex);
