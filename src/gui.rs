@@ -174,7 +174,7 @@ impl GUI<'_> {
 			.with_label("Neighborhood");
 		self.neighborhood_tab.end();
 		self.neighborhood_flex = FlexGrid::default();
-		self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
+		self.neighborhood_tab.add(&*self.neighborhood_flex);
 		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
 	
@@ -240,7 +240,7 @@ impl GUI<'_> {
 	pub fn update_grid(&mut self, ext_grid:&Grid<GroupInstance>) {
 		//self.grid_flex = FlexGrid::default();
 		// clear previous nonsense
-		if self.grid_flex.outer_flex.children() > 0 {
+		if self.grid_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
 		// create grid of buttons
@@ -308,14 +308,14 @@ impl GUI<'_> {
 		// self.grid_flex.outer_flex.resize(0 - button_width / 2, self.districts_tab.y(), self.grid_flex.outer_flex.width() + button_width / 2, self.grid_flex.outer_flex.height());
 		// actually make the grid show up
 		if self.districts_tab.children() < 1 {
-			self.districts_tab.add(&self.grid_flex.outer_flex);
+			self.districts_tab.add(&*self.grid_flex);
 		}//end to tab if not there already
 		else {
-			self.districts_tab.add(&self.grid_flex.outer_flex);
+			self.districts_tab.add(&*self.grid_flex);
 			self.districts_tab.redraw();
 		}
-		self.grid_flex.outer_flex.recalc();
-		self.grid_flex.outer_flex.redraw();
+		self.grid_flex.recalc();
+		self.grid_flex.redraw();
 	}//end initialize_grid
 
 	/// # initialize_setting(self)
@@ -463,7 +463,7 @@ impl GUI<'_> {
 	/// 
 	/// Simply causes the gui to become visible
 	pub fn show(&mut self) {
-		self.grid_flex.outer_flex.recalc();
+		self.grid_flex.recalc();
 		self.main_window.show();
 	}//end show(&mut self)
 
@@ -507,7 +507,7 @@ impl GUI<'_> {
 		// try and re-initialize neighborhood_flex
 		// self.neighborhood_flex = FlexGrid::default();
 		// clear previous nonsense
-		if self.neighborhood_flex.outer_flex.children() > 0 {
+		if self.neighborhood_flex.children() > 0 {
 			self.neighborhood_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
 		// create and fill a grid of buttons
@@ -552,10 +552,10 @@ impl GUI<'_> {
 		self.neighborhood_flex.buttons = button_grid;
 		// actually try and make things show up
 		if self.neighborhood_tab.children() < 1 {
-			self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
+			self.neighborhood_tab.add(&*self.neighborhood_flex);
 		}//end to tab if not there already
-		self.neighborhood_flex.outer_flex.recalc();
-		self.neighborhood_flex.outer_flex.redraw();
+		self.neighborhood_flex.recalc();
+		self.neighborhood_flex.redraw();
 	}//end show_neighborhood_window(&self, nhood)
 
 	/// # choose_district(&self)
