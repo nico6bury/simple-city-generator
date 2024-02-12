@@ -87,10 +87,24 @@ fn main() {
                     // advance groups until enclosed
                     let mut all_enclosed = false;
                     println!("\nStarting grid generation");
+                    // counter to keep track of iteration
+                    let mut num_iterations: usize = 0;
                     while !all_enclosed {
                         let num_enclosed = advance_group_expansion(&mut city_grid, &mut gui.districts, &mut rng, neigh_dims.0, neigh_dims.1);
                         //println!("{} groups are fully enclosed", &num_enclosed);
                         all_enclosed = num_enclosed.eq(&gui.districts.len());
+                        // update iteration number
+                        num_iterations += 1;
+                        // potentially print iterations if they're high
+                        if num_iterations < 10 || num_iterations % 10 == 0 {
+                            if num_iterations < 100 || num_iterations % 100 == 0 {
+                                if num_iterations < 1000 || num_iterations % 1000 == 0 {
+                                    if num_iterations < 5000 || num_iterations % 5000 == 0 {
+                                        println!("Reached the {} iteration of group expansion!", num_iterations);
+                                    }//end if fourth interval
+                                }//end if third interval
+                            }//end if num_iterations is on interval
+                        }//end if first interval
                     }//end looping while some groupings are still able to expand
                     println!("\nFinished generating grid");
 
@@ -163,6 +177,7 @@ fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupi
         // don't try to advance if there's no valid open coords
         if open_coords.len() == 0 {
             num_enclosed += 1;
+            println!("A Group has been enclosed!");
             continue;
         }//end if we have an enclosed district
         // pick one of the open_coords
