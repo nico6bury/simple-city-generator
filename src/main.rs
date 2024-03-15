@@ -100,11 +100,22 @@ fn main() {
                             if num_iterations < 100 || num_iterations % 100 == 0 {
                                 if num_iterations < 1000 || num_iterations % 1000 == 0 {
                                     if num_iterations < 5000 || num_iterations % 5000 == 0 {
-                                        println!("Reached the {} iteration of group expansion!", num_iterations);
+                                        println!("Reached the iteration {} of group expansion!", num_iterations);
                                     }//end if fourth interval
                                 }//end if third interval
                             }//end if num_iterations is on interval
                         }//end if first interval
+                        // previous printed numbers
+                        let mut prev_print = 0;
+                        // potentially print num enclosed if they're high
+                        if gui.districts.len() < 10 || num_enclosed % 10 == 0 {
+                            if gui.districts.len() < 100 || num_enclosed % 50 == 0 {
+                                if prev_print < num_enclosed {
+                                    println!("{} groups have been enclosed!", num_enclosed);
+                                    prev_print = num_enclosed;
+                                }//end if not printed before
+                            }//end if 100 interval
+                        }//end if 10 interval
                     }//end looping while some groupings are still able to expand
                     println!("\nFinished generating grid");
 
@@ -177,7 +188,6 @@ fn advance_group_expansion(grid:&mut Grid<GroupInstance>, groups:&mut Vec<Groupi
         // don't try to advance if there's no valid open coords
         if open_coords.len() == 0 {
             num_enclosed += 1;
-            println!("A Group has been enclosed!");
             continue;
         }//end if we have an enclosed district
         // pick one of the open_coords
