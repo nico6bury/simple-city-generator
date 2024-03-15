@@ -23,6 +23,7 @@ use fltk::prelude::WidgetBase;
 use fltk::prelude::WidgetExt;
 use fltk::text::TextBuffer;
 use fltk::text::TextDisplay;
+use fltk::widget_extends;
 use fltk::window::Window;
 use fltk_theme::widget_themes;
 use grid::Grid;
@@ -173,7 +174,7 @@ impl GUI<'_> {
 			.with_label("Neighborhood");
 		self.neighborhood_tab.end();
 		self.neighborhood_flex = FlexGrid::default();
-		self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
+		self.neighborhood_tab.add(&*self.neighborhood_flex);
 		self.tabs.add(&self.neighborhood_tab);
 	}//end set_default_properties
 	
@@ -239,7 +240,7 @@ impl GUI<'_> {
 	pub fn update_grid(&mut self, ext_grid:&Grid<GroupInstance>) {
 		//self.grid_flex = FlexGrid::default();
 		// clear previous nonsense
-		if self.grid_flex.outer_flex.children() > 0 {
+		if self.grid_flex.children() > 0 {
 			self.grid_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
 		// create grid of buttons
@@ -307,14 +308,14 @@ impl GUI<'_> {
 		// self.grid_flex.outer_flex.resize(0 - button_width / 2, self.districts_tab.y(), self.grid_flex.outer_flex.width() + button_width / 2, self.grid_flex.outer_flex.height());
 		// actually make the grid show up
 		if self.districts_tab.children() < 1 {
-			self.districts_tab.add(&self.grid_flex.outer_flex);
+			self.districts_tab.add(&*self.grid_flex);
 		}//end to tab if not there already
 		else {
-			self.districts_tab.add(&self.grid_flex.outer_flex);
+			self.districts_tab.add(&*self.grid_flex);
 			self.districts_tab.redraw();
 		}
-		self.grid_flex.outer_flex.recalc();
-		self.grid_flex.outer_flex.redraw();
+		self.grid_flex.recalc();
+		self.grid_flex.redraw();
 	}//end initialize_grid
 
 	/// # initialize_setting(self)
@@ -462,7 +463,7 @@ impl GUI<'_> {
 	/// 
 	/// Simply causes the gui to become visible
 	pub fn show(&mut self) {
-		self.grid_flex.outer_flex.recalc();
+		self.grid_flex.recalc();
 		self.main_window.show();
 	}//end show(&mut self)
 
@@ -506,7 +507,7 @@ impl GUI<'_> {
 		// try and re-initialize neighborhood_flex
 		// self.neighborhood_flex = FlexGrid::default();
 		// clear previous nonsense
-		if self.neighborhood_flex.outer_flex.children() > 0 {
+		if self.neighborhood_flex.children() > 0 {
 			self.neighborhood_flex.clear_inner_flexes();
 		}//end if we have previous stuff to take care of
 		// create and fill a grid of buttons
@@ -551,10 +552,10 @@ impl GUI<'_> {
 		self.neighborhood_flex.buttons = button_grid;
 		// actually try and make things show up
 		if self.neighborhood_tab.children() < 1 {
-			self.neighborhood_tab.add(&self.neighborhood_flex.outer_flex);
+			self.neighborhood_tab.add(&*self.neighborhood_flex);
 		}//end to tab if not there already
-		self.neighborhood_flex.outer_flex.recalc();
-		self.neighborhood_flex.outer_flex.redraw();
+		self.neighborhood_flex.recalc();
+		self.neighborhood_flex.redraw();
 	}//end show_neighborhood_window(&self, nhood)
 
 	/// # choose_district(&self)
@@ -612,10 +613,12 @@ impl FlexGrid {
 	/// 
 	/// constructs the empty FlexGrid
 	pub fn default() -> FlexGrid {
+		let new_outer_flex = Flex::new(0, get_default_menu_height() + get_default_tab_padding(), get_default_grid_width(), get_default_grid_height(), None);
+		new_outer_flex.end();
 		FlexGrid {
-			buttons:Grid::new(0,0),
-			outer_flex:Flex::new(0, get_default_menu_height() + get_default_tab_padding(), get_default_grid_width(), get_default_grid_height(), None),
-			inner_flexes:Vec::new(),
+			buttons: Grid::new(0,0),
+			outer_flex: new_outer_flex,
+			inner_flexes: Vec::new(),
 		}//end struct construction
 	}//end new()
 
@@ -665,6 +668,10 @@ impl FlexGrid {
 				}//end if button wasn't deleted
 				else {println!("button was deleted, row {}", row_idx);}
 			}//end adding each button in row to inner flex
+			this_inner_flex.end();
 		}//end looping over each inner flex and adding buttons
+		self.outer_flex.end();
 	}//end fill_flex
 }//end impl for FlexGrid
+
+widget_extends!(FlexGrid, Flex, outer_flex);
